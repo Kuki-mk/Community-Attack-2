@@ -93,7 +93,7 @@ main{position:relative;z-index:1}
 <div class="grid" id="sum"></div>
 <h2>Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
 <h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div class="grid" id="aw"></div><div class="card" id="dt" hidden></div>
-<h2>Nutzlose Fakten</h2><ul id="fx"></ul>
+<h2>Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
 <footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.</footer>
 </main>
 <script>
@@ -112,14 +112,7 @@ const S=k=>P.reduce((a,p)=>a+(p[k]||0),0);
 $('st').textContent=demo?'Demo-Daten – die ersten echten Statistiken werden geladen, sobald sie verfügbar sind.':P.length+' Spieler geladen.';
 $('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big" data-v="${v}">${f1(v)}</div></div>`).join('');
 $('aw').innerHTML=AW.map(([e,t,k,u])=>{const w=P.reduce((a,p)=>(p[k]||0)>(a[k]||0)?p:a,P[0]||{});return w[k]>0?`<div class="card aw${sel==k?' sel':''}" data-k="${k}" tabindex="0"><div class="e">${e}</div><div class="lbl">${t}</div><b>${esc(w.n)}</b><span class="lbl">${f1(w[k])} ${u}</span></div>`:''}).join('');
-plist();detail();cu();const W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h');
-$('fx').innerHTML=[
-`Zusammen seid ihr <b>${f1(W)} km</b> gelaufen – das sind ${f1(W/400.75)} % um die Erde.`,
-`Mit ${f1(J)} Sprüngen (ca. 1,25 m pro Sprung) wärt ihr ${f1(J*1.25/8849)}× so hoch wie der Mount Everest gehüpft.`,
-`Ihr seid ${f1(SW)} km geschwommen – der Ärmelkanal (ca. 33 km) wäre ${f1(SW/33)}× durchquert.`,
-D?`Im Schnitt stirbt ein Spieler alle ${f1(H/D)} Spielstunden.`:'',
-`Eure gesamte Spielzeit: ${f1(H/24)} Tage am Stück – ohne Schlaf.`
-].filter(Boolean).map(t=>`<li>${t}</li>`).join('')}
+plist();detail();cu();showFacts()}
 let SV={on:true,count:2,max:20};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
 DEMO.forEach((p,i)=>{const[o,s]=DS[i];p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
@@ -129,6 +122,38 @@ function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dat
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const c=document.createElement('div');c.id='ptc';for(let i=0;i<22;i++){const e=document.createElement('i'),z=4+Math.random()*7;e.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*30}s;background:var(${i%3?'--acc':'--acc2'})`;c.appendChild(e)}document.body.prepend(c)}
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08}):null;
 document.querySelectorAll('h2,.tm,#sum,#pl,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
+let FO=null,fo=0;
+function facts(){const S=k=>P.reduce((a,p)=>a+(p[k]||0),0),W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h'),M=S('m'),K=S('mk'),F=S('f'),DT=S('dt'),SL=S('sl'),V=S('v'),N=P.length,b=t=>`<b>${t}</b>`,
+top=fn=>{const p=P.reduce((m,x)=>fn(x)>fn(m)?x:m,P[0]||{});return fn(p)>0?p:null},
+pd=top(p=>p.h>1?(p.d||0)/p.h:0),pw=top(p=>p.w||0),pt=top(p=>p.ts||0),pm=top(p=>p.h>1?(p.m||0)/p.h:0),pj=top(p=>p.j||0);
+return[
+W>0&&`Zusammen seid ihr ${b(f1(W)+' km')} gelaufen – das sind ${f1(W/400.75)} % um die Erde.`,
+W>0&&`Zu Fuß von Flensburg nach Garmisch (ca. 950 km) wärt ihr ${b(f1(W/950)+'×')} gekommen.`,
+J>0&&`Mit ${f1(J)} Sprüngen (ca. 1,25 m pro Sprung) wärt ihr ${b(f1(J*1.25/8849)+'×')} so hoch wie der Mount Everest gehüpft.`,
+J>0&&H>0&&`Im Schnitt springt ihr ${b(f1(J/H))} Mal pro Spielstunde. Ein Fitnessstudio braucht ihr nicht.`,
+SW>0&&`Ihr seid ${b(f1(SW)+' km')} geschwommen – der Ärmelkanal (ca. 33 km) wäre ${f1(SW/33)}× durchquert.`,
+D>0&&H>0&&`Im Schnitt stirbt ein Spieler alle ${b(f1(H/D)+' Spielstunden')}.`,
+H>0&&`Eure gesamte Spielzeit: ${b(f1(H/24)+' Tage')} am Stück – ohne Schlaf.`,
+H>0&&`In dieser Zeit hättet ihr ${b(f1(H/1.5))} Fußballspiele schauen können.`,
+M>0&&`Ihr habt ${b(f1(M)+' Blöcke')} abgebaut – das wäre ein Würfel mit ${f1(Math.cbrt(M))} Blöcken Kantenlänge.`,
+M>0&&`Bei ca. 2,7 Tonnen pro Block habt ihr ${b(f1(M*2.7)+' Tonnen')} Gestein bewegt.`,
+K>0&&D>0&&`Ihr besiegt im Schnitt ${b(f1(K/D))} Monster, bevor euch eins erwischt.`,
+F>0&&`Elytra-Flüge: ${b(f1(F)+' km')} – das ist ${f1(F/150)}× Leipzig–Berlin.`,
+DT>0&&`Ihr habt ${b(f1(DT)+' Herzen')} Schaden eingesteckt – das sind ${f1(DT/10)} volle Lebensleisten.`,
+SL>0&&`${b(f1(SL)+'×')} im Bett geschlafen – das wären ${f1(SL/365)} Jahre Nachtruhe.`,
+V>0&&`${b(f1(V))} Gespräche mit Dorfbewohnern – und geantwortet haben sie nur „Hrmm“.`,
+pd&&`Pechvogel: ${b(esc(pd.n))} stirbt alle ${f1(pd.h/pd.d)} Spielstunden.`,
+pw&&`Weltenbummler: ${b(esc(pw.n))} ist ${f1(pw.w)} km zu Fuß unterwegs gewesen.`,
+pt&&`${b(esc(pt.n))} lebt seit ${f1(pt.ts)} Stunden ohne Tod – drückt die Daumen!`,
+pm&&`Fleißigster Bergmann: ${b(esc(pm.n))} baut ${f1(pm.m/pm.h)} Blöcke pro Stunde ab.`,
+pj&&`${b(esc(pj.n))} ist ${f1(pj.j)} Mal gesprungen – das sind ${f1(pj.j*1.25/1000)} km senkrecht nach oben.`,
+N>0&&H>0&&`Jeder Spieler hat im Schnitt ${b(f1(H/N)+' Stunden')} gespielt.`]}
+function showFacts(){const a=facts();if(!FO)FO=a.map((_,i)=>i).sort(()=>Math.random()-.5);const v=FO.filter(i=>a[i]),n=Math.min(5,v.length);
+$('fx').innerHTML=Array.from({length:n},(_,k)=>`<li>${a[v[(fo+k)%v.length]]}</li>`).join('')}
+let rt=null;
+function nextFacts(){fo+=5;const u=$('fx');u.style.opacity=0;setTimeout(()=>{showFacts();u.style.opacity=1},600)}
+function armFacts(){clearInterval(rt);rt=setInterval(nextFacts,40000)}
+$('nf').onclick=()=>{nextFacts();armFacts()};armFacts();
 const hue=n=>[...n].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
 function plist(){const t=Date.now()/1000,known=P.some(p=>'on' in p),rk=p=>p.on?0:p.last?1:2;
 const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.last||0))||x.n.localeCompare(y.n)),on=a.filter(p=>p.on).length;
