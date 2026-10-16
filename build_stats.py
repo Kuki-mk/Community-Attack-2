@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""Baut docs/stats.json aus den Minecraft-Stats-Dateien.
-
-Mit SFTP_HOST/SFTP_USER/SFTP_PASS (Umgebungsvariablen) werden die Dateien
-vom Hoster geholt. Ohne diese Variablen liest das Skript ./raw
-(UUID.json-Dateien aus world/stats + usercache.json).
-"""
+"""Baut docs/stats.json: Stats-Dateien (per SFTP oder aus ./raw) plus Online-Status per Server-Ping."""
 import json
 import os
+import socket
+import struct
 import time
 from pathlib import Path
 
 RAW, OUT = Path("raw"), Path("docs/stats.json")
+NUM = ("h", "d", "m", "j", "sw", "w", "f", "mk", "ts", "dt", "sl", "v")
 
 
 def fetch_sftp():
@@ -20,15 +18,57 @@ def fetch_sftp():
     s = paramiko.SFTPClient.from_transport(t)
     world = os.environ.get("WORLD_DIR") or "world"
     RAW.mkdir(exist_ok=True)
-    for f in s.listdir(f"{world}/stats"):
-        if f.endswith(".json"):
-            s.get(f"{world}/stats/{f}", str(RAW / f))
+    for a in s.listdir_attr(f"{world}/stats"):
+        if a.filename.endswith(".json"):
+            dst = RAW / a.filename
+            s.get(f"{world}/stats/{a.filename}", str(dst))
+            if a.st_mtime:  # Änderungszeit = Zeitpunkt des letzten Speicherns (≈ Logout)
+                os.utime(dst, (a.st_mtime, a.st_mtime))
     try:
         s.get("usercache.json", str(RAW / "usercache.json"))
     except OSError:
         pass
     s.close()
     t.close()
+
+
+def varint(n):
+    out = b""
+    while True:
+        b, n = n & 0x7F, n >> 7
+        out += bytes([b | (0x80 if n else 0)])
+        if not n:
+            return out
+
+
+def read_varint(s):
+    n = 0
+    for i in range(5):
+        b = s.recv(1)[0]
+        n |= (b & 0x7F) << (7 * i)
+        if not b & 0x80:
+            return n
+    raise ValueError("varint")
+
+
+def ping(host, port):
+    """Minecraft Server-List-Ping. Liefert das Status-JSON oder None."""
+    try:
+        with socket.create_connection((host, port), timeout=8) as s:
+            h = host.encode()
+            data = b"\x00" + varint(765) + varint(len(h)) + h + struct.pack(">H", port) + varint(1)
+            s.sendall(varint(len(data)) + data + b"\x01\x00")
+            read_varint(s)
+            read_varint(s)
+            n, buf = read_varint(s), b""
+            while len(buf) < n:
+                chunk = s.recv(n - len(buf))
+                if not chunk:
+                    break
+                buf += chunk
+            return json.loads(buf)
+    except (OSError, ValueError, IndexError):
+        return None
 
 
 def build():
@@ -65,15 +105,37 @@ def build():
             "dt": round(g("damage_taken") / 20),
             "sl": g("sleep_in_bed"),
             "v": g("talked_to_villager"),
+            "last": int(f.stat().st_mtime),
         })
 
     try:
-        old = json.loads(OUT.read_text("utf-8")).get("players")
+        old = json.loads(OUT.read_text("utf-8"))
     except (OSError, ValueError):
-        old = None
-    if old != players:  # nur schreiben, wenn sich etwas geändert hat
+        old = {}
+    prev = {p["n"]: p for p in old.get("players", [])}
+
+    # Online-Status (nur wenn MC_HOST gesetzt ist)
+    now, server = int(time.time()), None
+    host = os.environ.get("MC_HOST")
+    if host:
+        info = ping(host, int(os.environ.get("MC_PORT") or 25565))
+        pl = (info or {}).get("players", {})
+        online = {x["name"] for x in pl.get("sample", [])}
+        server = {"on": info is not None, "count": pl.get("online", 0), "max": pl.get("max", 0)}
+        known = {p["n"] for p in players}
+        players += [{"n": n, **{k: 0 for k in NUM}} for n in sorted(online - known)]
+        for p in players:
+            if p["n"] in online:
+                o = prev.get(p["n"], {})
+                p["on"] = True
+                p["since"] = (o.get("since") if o.get("on") else None) or now
+                p.pop("last", None)
+            else:
+                p["on"] = False
+
+    if (old.get("players"), old.get("server")) != (players, server):  # nur bei Änderung schreiben
         OUT.parent.mkdir(exist_ok=True)
-        OUT.write_text(json.dumps({"updated": int(time.time()), "players": players},
+        OUT.write_text(json.dumps({"updated": now, "server": server, "players": players},
                                   ensure_ascii=False), "utf-8")
     print(len(players), "Spieler")
 
