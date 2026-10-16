@@ -35,6 +35,31 @@ def fetch_sftp():
     t.close()
 
 
+def list_date(p):
+    """'Oct 16 14:32' oder 'Oct 16 2025' (LIST-Format) -> Unix-Zeit oder None."""
+    try:
+        if ":" in p[2]:
+            y = time.gmtime().tm_year
+            ts = calendar.timegm(time.strptime(f"{p[0]} {p[1]} {p[2]} {y}", "%b %d %H:%M %Y"))
+            if ts > time.time() + 86400:
+                ts = calendar.timegm(time.strptime(f"{p[0]} {p[1]} {p[2]} {y - 1}", "%b %d %H:%M %Y"))
+            return ts
+        return calendar.timegm(time.strptime(" ".join(p), "%b %d %Y"))
+    except ValueError:
+        return None
+
+
+def ftp_list(ftp):
+    """Dateien per LIST lesen (manche Hoster kennen weder NLST noch MLSD). -> {name: zeit|None}"""
+    lines, out = [], {}
+    ftp.retrlines("LIST", lines.append)
+    for ln in lines:
+        parts = ln.split()
+        if parts and parts[-1].endswith(".json") and not ln.startswith("d"):
+            out[parts[-1]] = list_date(parts[5:8]) if len(parts) >= 9 else None
+    return out
+
+
 def ftp_download(ftp):
     world = os.environ.get("WORLD_DIR") or "world"
     home = ftp.pwd()
@@ -52,12 +77,12 @@ def ftp_download(ftp):
                 mt[n] = facts["modify"]
     except ftplib.all_errors:
         pass
-    names = list(mt) or [posixpath.basename(n) for n in ftp.nlst() if n.endswith(".json")]
-    for n in names:
+    info = {} if mt else ftp_list(ftp)
+    for n in list(mt) or list(info):
         dst = RAW / n
         with open(dst, "wb") as fh:
             ftp.retrbinary("RETR " + n, fh.write)
-        m = mt.get(n)
+        m, ts = mt.get(n), None
         if not m:
             try:
                 m = ftp.voidcmd("MDTM " + n)[4:].strip()
@@ -65,7 +90,8 @@ def ftp_download(ftp):
                 m = None
         if m:
             ts = calendar.timegm(time.strptime(m[:14], "%Y%m%d%H%M%S"))
-            os.utime(dst, (ts, ts))
+        ts = ts or info.get(n) or 0  # 0 = unbekannt
+        os.utime(dst, (ts, ts))
     ftp.cwd(home)
     base = posixpath.dirname(world)
     if base:
@@ -172,7 +198,7 @@ def build():
             "dt": round(g("damage_taken") / 20),
             "sl": g("sleep_in_bed"),
             "v": g("talked_to_villager"),
-            "last": int(f.stat().st_mtime),
+            "last": int(f.stat().st_mtime) or None,  # None = unbekannt
         })
 
     try:
