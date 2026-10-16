@@ -21,6 +21,8 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
           WORLD_DIR: ${{ secrets.WORLD_DIR }}
+          MC_HOST: ${{ secrets.MC_HOST }}
+          MC_PORT: ${{ secrets.MC_PORT }}
       - run: |
           git config user.name "stats-bot"
           git config user.email "stats-bot@users.noreply.github.com"
