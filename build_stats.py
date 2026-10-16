@@ -5,13 +5,16 @@ import ftplib
 import json
 import os
 import posixpath
+import re
 import socket
 import struct
 import time
 from pathlib import Path
 
 RAW, OUT = Path("raw"), Path("docs/stats.json")
-NUM = ("h", "d", "m", "j", "sw", "w", "f", "mk", "ts", "dt", "sl", "v")
+NUM = ("h", "d", "m", "j", "sw", "w", "f", "mk", "ts", "dt", "sl", "v", "dd", "tt", "sn", "sk", "fl", "tr", "pl", "ac", "ls")
+# Items, die beim Benutzen KEIN Block werden (für die Schätzung "platzierte Blöcke")
+NOBLOCK = re.compile(r"(_pickaxe|_axe|_shovel|_hoe|_sword|_helmet|_chestplate|_leggings|_boots|_spawn_egg|_bucket|_potion|_boat|_minecart|_stew|_soup|_bottle|_dye|_template|_pattern|_horse_armor)$|^(bow|crossbow|trident|mace|shield|shears|flint_and_steel|fishing_rod|brush|spyglass|compass|clock|lead|name_tag|saddle|elytra|firework_rocket|ender_pearl|ender_eye|snowball|egg|experience_bottle|fire_charge|wind_charge|bone_meal|map|filled_map|book|writable_book|enchanted_book|paper|stick|totem_of_undying|golden_apple|enchanted_golden_apple|apple|bread|cookie|beef|porkchop|chicken|mutton|rabbit|cod|salmon|tropical_fish|pufferfish|rotten_flesh|spider_eye|golden_carrot|melon_slice|chorus_fruit|potion|arrow|spectral_arrow|tipped_arrow|bowl|bundle|goat_horn|cooked_.*|music_disc_.*)$")
 
 
 def fetch_sftp():
@@ -123,6 +126,15 @@ def ftp_download(ftp):
             ts = calendar.timegm(time.strptime(m[:14], "%Y%m%d%H%M%S"))
         ts = ts or info.get(n) or 0  # 0 = unbekannt
         os.utime(dst, (ts, ts))
+    try:  # Fortschritte liegen neben dem stats-Ordner
+        ftp.cwd(home)
+        ftp.cwd(posixpath.join(posixpath.dirname(stats), "advancements"))
+        (RAW / "adv").mkdir(exist_ok=True)
+        for n in ftp_list(ftp):
+            with open(RAW / "adv" / n, "wb") as fh:
+                ftp.retrbinary("RETR " + n, fh.write)
+    except ftplib.all_errors:
+        print("Fortschritte nicht gefunden (übersprungen)")
     parts = stats.split("/")  # usercache.json liegt im Server-Hauptordner: von innen nach außen suchen
     for k in range(len(parts) - 1, -1, -1):
         buf = []
@@ -218,6 +230,13 @@ def build():
         hours = (g("play_time") or g("play_one_minute")) / 72000
         if hours == 0:
             continue
+        used = st.get("minecraft:used", {})
+        ac = 0
+        try:
+            adv = json.loads((RAW / "adv" / f.name).read_text("utf-8"))
+            ac = sum(1 for k, v in adv.items() if isinstance(v, dict) and v.get("done") and "recipes/" not in k)
+        except (OSError, ValueError):
+            pass
         players.append({
             "n": names.get(uid, "Spieler " + uid[:6]),
             "h": round(hours, 1),
@@ -232,6 +251,14 @@ def build():
             "dt": round(g("damage_taken") / 20),
             "sl": g("sleep_in_bed"),
             "v": g("talked_to_villager"),
+            "dd": round(g("damage_dealt") / 20),
+            "tt": used.get("minecraft:totem_of_undying", 0),
+            "sn": round(g("crouch_one_cm") / 1e5, 2),
+            "sk": round(g("sneak_time") / 72000, 1),
+            "fl": round(g("fall_one_cm") / 1e5, 2),
+            "tr": round(g("time_since_rest") / 72000, 1),
+            "pl": sum(v for k, v in used.items() if not NOBLOCK.search(k[10:])),
+            "ac": ac,
             "last": int(f.stat().st_mtime) or None,  # None = unbekannt
         })
 
@@ -256,9 +283,11 @@ def build():
                 o = prev.get(p["n"], {})
                 p["on"] = True
                 p["since"] = (o.get("since") if o.get("on") else None) or now
+                p["ls"] = round(max(o.get("ls", 0), (now - p["since"]) / 3600), 2)  # längste Session (Std.)
                 p.pop("last", None)
             else:
                 p["on"] = False
+                p["ls"] = prev.get(p["n"], {}).get("ls", 0)
 
     if (old.get("players"), old.get("server")) != (players, server):  # nur bei Änderung schreiben
         OUT.parent.mkdir(exist_ok=True)
