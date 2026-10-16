@@ -38,6 +38,9 @@ h2::before{content:"";width:10px;height:10px;background:var(--acc);box-shadow:4p
 @media(max-width:480px){.pr{flex-wrap:wrap}.pr .s{width:100%;padding-left:46px;text-align:left}}
 #fx{list-style:none;padding:0;margin:0;display:grid;gap:10px}#fx li{background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:12px 16px;margin:0}
 button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;border-radius:6px;cursor:pointer}
+.cat{font:600 15px Inter,system-ui,sans-serif;color:var(--mut);margin:28px 0 12px}
+#gl{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.gbar{height:14px;background:var(--bd);border-radius:7px;margin:10px 0 6px;overflow:hidden}.gbar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,var(--acc),var(--acc2));transform-origin:left;animation:gr 1s ease both}
 footer{margin-top:48px;color:var(--mut);font-size:13px;text-align:center}
 main{position:relative;z-index:1}
 .bc{transform-box:fill-box;transform-origin:50% 100%;animation:bob 3.2s ease-in-out infinite}
@@ -91,8 +94,9 @@ main{position:relative;z-index:1}
 <div class="card"><div class="lbl">🌌 Das End öffnet in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
 </div>
 <div class="grid" id="sum"></div>
+<h2>Community-Ziele</h2><div class="grid" id="gl"></div>
 <h2>Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
-<h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div class="grid" id="aw"></div><div class="card" id="dt" hidden></div>
+<h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div id="aw"></div>
 <h2>Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
 <footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.</footer>
 </main>
@@ -104,24 +108,36 @@ const DEMO=[
 {n:'KuhFlüsterer',h:96,d:15,m:4100,j:9800,sw:2.2,w:75,f:0,c:880,mk:240,ts:41,dt:350,sl:12,t:80,ca:57,v:60},
 {n:'Redstone_Rita',h:344,d:48,m:40200,j:7600,sw:1.3,w:130,f:88,c:25,mk:2600,ts:18,dt:1900,sl:64,t:1450,ca:8,v:310},
 {n:'ElytraEmil',h:188,d:73,m:9000,j:12100,sw:3.8,w:95,f:640,c:9,mk:610,ts:7,dt:2700,sl:21,t:140,ca:3,v:75}];
-const AW=[['⏱️','Dauerzocker','h','Std.'],['💀','Todesmeister','d','Tode'],['⚔️','Monsterjäger','mk','Mob-Kills'],['⛏️','Stein-Zerstörer','m','Blöcke'],['🦘','Hüpfer vom Dienst','j','Sprünge'],['🏊','Wasserratte','sw','km'],['🛏️','Schlafmütze','sl','Nächte'],['🪂','Elytra-Pilot','f','km Flug'],['🧘','Unsterblichster','ts','Std. ohne Tod'],['🛡️','Schadensschwamm','dt','♥ erlitten'],['🗣️','Villager-Flüsterer','v','Gespräche']];
+const AW=[
+['⏱️ Zeit & Aktivität',[['⏱️','Dauerzocker','h','Std.'],['🕒','Längste Session','ls','Std.'],['👻','Phantom-Kandidat','tr','Std. wach'],['🧘','Unsterblichster','ts','Std. ohne Tod'],['🛏️','Schlafmütze','sl','Nächte']]],
+['⚔️ Kampf & Schaden',[['💀','Todesmeister','d','Tode'],['⚔️','Monsterjäger','mk','Mob-Kills'],['💢','Hau-drauf','dd','♥ ausgeteilt'],['🛡️','Schadensschwamm','dt','♥ erlitten'],['🧸','Totem-Verbraucher','tt','Totems']]],
+['⛏️ Bauen & Abbauen',[['⛏️','Stein-Zerstörer','m','Blöcke'],['🧱','Baumeister','pl','Blöcke (geschätzt)']]],
+['🧭 Bewegung',[['🦘','Hüpfer vom Dienst','j','Sprünge'],['🏊','Wasserratte','sw','km'],['🪂','Elytra-Pilot','f','km Flug'],['🤫','Schleicher','sn','km',p=>p.sk?f1(p.sk)+' Std. geschlichen':''],['🕳️','Absturz-Profi','fl','km Fall']]],
+['🏆 Fortschritt & Dorf',[['📜','Achievement-Jäger','ac','Fortschritte'],['🗣️','Villager-Flüsterer','v','Gespräche']]]];
+const AWF=AW.flatMap(c=>c[1]);
+function dh(){const a=AWF.find(x=>x[2]==sel);if(!a)return'';const r=[...P].filter(p=>p[sel]>0).sort((x,y)=>y[sel]-x[sel]),mx=r.length?r[0][sel]:1;
+return`<div class="lbl">${a[0]} ${a[1]} – komplette Liste <button id="cl" style="float:right">✕</button></div>`+r.map((p,i)=>`<div class="rw"><span>${i+1}.</span><span>${esc(p.n)}</span><b>${f1(p[sel])} ${a[3]}</b><div class="bar"><i style="width:${p[sel]/mx*100}%"></i></div></div>`).join('')}
+function awHtml(){return AW.map(([t,items])=>{const cards=items.map(([e,n,k,u,x])=>{const w=P.reduce((a,p)=>(p[k]||0)>(a[k]||0)?p:a,P[0]||{});return w[k]>0?`<div class="card aw${sel==k?' sel':''}" data-k="${k}" tabindex="0"><div class="e">${e}</div><div class="lbl">${n}</div><b>${esc(w.n)}</b><span class="lbl">${f1(w[k])} ${u}${x&&x(w)?' · '+x(w):''}</span></div>`:''}).join('');
+return cards?`<h3 class="cat">${t}</h3><div class="grid">${cards}</div>`+(items.some(i=>i[2]==sel)?`<div class="card" id="dt">${dh()}</div>`:''):''}).join('')}
+const GOALS=[['⛏️','Gemeinsam abgebaut','m',1e6],['🧱','Gemeinsam platziert (geschätzt)','pl',1e6]];
+function goals(S){$('gl').innerHTML=GOALS.map(([e,t,k,g])=>{const v=S(k),p=Math.min(100,v/g*100);return`<div class="card"><div class="lbl">${e} ${t}</div><div class="big">${f1(v)} <span class="lbl">/ ${f1(g)}</span></div><div class="gbar"><i style="width:${p}%"></i></div><div class="lbl">${f1(p)} %${v>=g?' – Ziel erreicht! 🎉':''}</div></div>`}).join('')}
 const $=id=>document.getElementById(id),f1=n=>n.toLocaleString('de-DE',{maximumFractionDigits:1}),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
 let P=DEMO,demo=true,sel=null;
 function render(){
 const S=k=>P.reduce((a,p)=>a+(p[k]||0),0);
 $('st').textContent=demo?'Demo-Daten – die ersten echten Statistiken werden geladen, sobald sie verfügbar sind.':P.length+' Spieler geladen.';
 $('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big" data-v="${v}">${f1(v)}</div></div>`).join('');
-$('aw').innerHTML=AW.map(([e,t,k,u])=>{const w=P.reduce((a,p)=>(p[k]||0)>(a[k]||0)?p:a,P[0]||{});return w[k]>0?`<div class="card aw${sel==k?' sel':''}" data-k="${k}" tabindex="0"><div class="e">${e}</div><div class="lbl">${t}</div><b>${esc(w.n)}</b><span class="lbl">${f1(w[k])} ${u}</span></div>`:''}).join('');
-plist();detail();cu();showFacts()}
+$('aw').innerHTML=awHtml();
+plist();goals(S);cu();showFacts()}
 let SV={on:true,count:2,max:20};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
-DEMO.forEach((p,i)=>{const[o,s]=DS[i];p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
+DEMO.forEach((p,i)=>{const[o,s]=DS[i];Object.assign(p,{dd:[9800,12400,5200,800,6300,2100][i],tt:[2,9,0,1,4,6][i],sn:[3.1,1.2,8.4,.6,5.5,.9][i],sk:[14,6,38,3,22,4][i],fl:[12,31,5,2,9,40][i],tr:[2,30,1.5,48,6,20][i],pl:[210000,95000,310000,18000,150000,42000][i],ac:[62,38,87,14,51,27][i],ls:[5.2,2.1,9.8,1.1,4.4,3][i]});p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
 const ago=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return s<60?'wenigen Sek.':m<60?m+' Min.':h<48?h+' Std.'+(m%60?' '+m%60+' Min.':''):Math.floor(h/24)+' Tagen'};
 const PV={};
 function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dataset.v,from=PV[i]||0;PV[i]=v;if(from==v||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/900);el.textContent=f1(from+(v-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const c=document.createElement('div');c.id='ptc';for(let i=0;i<22;i++){const e=document.createElement('i'),z=4+Math.random()*7;e.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*30}s;background:var(${i%3?'--acc':'--acc2'})`;c.appendChild(e)}document.body.prepend(c)}
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08}):null;
-document.querySelectorAll('h2,.tm,#sum,#pl,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
+document.querySelectorAll('h2,.tm,#sum,#gl,#pl,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
 let FO=null,fo=0;
 function facts(){const S=k=>P.reduce((a,p)=>a+(p[k]||0),0),W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h'),M=S('m'),K=S('mk'),F=S('f'),DT=S('dt'),SL=S('sl'),V=S('v'),N=P.length,b=t=>`<b>${t}</b>`,
 top=fn=>{const p=P.reduce((m,x)=>fn(x)>fn(m)?x:m,P[0]||{});return fn(p)>0?p:null},
@@ -160,13 +176,9 @@ const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.las
 $('pc').textContent=known?(SV&&SV.on===false?'Server offline':on+' online'+(SV&&SV.count>on?' (+'+(SV.count-on)+' ohne Namen)':'')):'';
 $('pl').innerHTML=a.map(p=>`<div class="pr${p.on?' on':''}"><span class="av" style="--h:${hue(p.n)}">${esc(p.n.charAt(0).toUpperCase())}</span><b>${esc(p.n)}</b><span class="s"><i class="dot${p.on?' on':''}"></i>${p.on?'online seit '+ago(t-p.since):p.last?`<span title="${new Date(p.last*1000).toLocaleString('de-DE')}">zuletzt online vor ${ago(t-p.last)}</span>`:'Status unbekannt'}</span></div>`).join('')}
 setInterval(plist,15000);
-function detail(){const a=AW.find(x=>x[2]==sel),d=$('dt');if(!a){d.hidden=true;return}
-const r=[...P].filter(p=>p[sel]>0).sort((x,y)=>y[sel]-x[sel]),mx=r.length?r[0][sel]:1;
-d.hidden=false;
-d.innerHTML=`<div class="lbl">${a[0]} ${a[1]} – komplette Liste <button id="cl" style="float:right">✕</button></div>`+r.map((p,i)=>`<div class="rw"><span>${i+1}.</span><span>${esc(p.n)}</span><b>${f1(p[sel])} ${a[3]}</b><div class="bar"><i style="width:${p[sel]/mx*100}%"></i></div></div>`).join('')}
 $('aw').onclick=e=>{const c=e.target.closest('.aw');if(c){sel=sel==c.dataset.k?null:c.dataset.k;render();if(sel)$('dt').scrollIntoView({block:'nearest',behavior:'smooth'})}};
 $('aw').onkeydown=e=>{if(e.key=='Enter'||e.key==' '){const c=e.target.closest('.aw');if(c){e.preventDefault();c.click()}}};
-$('dt').onclick=e=>{if(e.target.id=='cl'){sel=null;render()}};
+$('aw').addEventListener('click',e=>{if(e.target.id=='cl'){sel=null;render()}});
 const T0=new Date('2026-10-10T18:30:00+02:00'),T1=new Date('2026-10-21T18:00:00+02:00'),two=n=>String(n).padStart(2,'0');
 function dur(ms){const s=Math.floor(ms/1000),d=Math.floor(s/86400);return d+(d==1?' Tag ':' Tage ')+two(Math.floor(s%86400/3600))+':'+two(Math.floor(s%3600/60))+':'+two(s%60)}
 function tick(){const n=Date.now();$('up').textContent=n<T0?'Startet bald':dur(n-T0);$('cd').textContent=n>=T1?'Das End ist offen! 🐉':dur(T1-n)}
