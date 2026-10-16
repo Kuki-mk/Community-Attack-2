@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><title>Community Attack 2 – Statistiken</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#efe9d8;--card:#fffdf6;--ink:#23261f;--mut:#6b7062;--acc:#3f8f2a;--bd:#c9c0a4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#181a16;--card:#242820;--ink:#ecefe6;--mut:#9aa28d;--acc:#7bd957;--bd:#3b4234}}
-:root[data-theme="dark"]{--bg:#181a16;--card:#242820;--ink:#ecefe6;--mut:#9aa28d;--acc:#7bd957;--bd:#3b4234}
+:root{--bg:#f3efe3;--card:#fffdf7;--ink:#1f2a1c;--mut:#667060;--acc:#3a8a24;--acc2:#7c3fd0;--bd:#d6cfb8;--sh:#cbc3a6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12150f;--card:#1d2218;--ink:#eef2e6;--mut:#98a28b;--acc:#7bd957;--acc2:#b887ff;--bd:#323a2b;--sh:#070905;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12150f;--card:#1d2218;--ink:#eef2e6;--mut:#98a28b;--acc:#7bd957;--acc2:#b887ff;--bd:#323a2b;--sh:#070905;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif;padding:20px 16px 48px}
-main{max-width:980px;margin:auto}
-h1,h2,.big{font-family:'Press Start 2P',ui-monospace,monospace;line-height:1.4}
-h1{font-size:clamp(18px,4vw,28px);color:var(--acc);margin:8px 0}
-h2{font-size:14px;margin:36px 0 14px}
-.sub{color:var(--mut);margin:0 0 20px}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}
-.card{background:var(--card);border:3px solid var(--bd);border-radius:4px;padding:12px 14px;box-shadow:4px 4px 0 var(--bd)}
-.big{font-size:15px;color:var(--acc);margin-top:6px;word-break:break-word}
-.pr{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}.pr:last-child{border:0}
-.pr .s{display:flex;align-items:center;gap:8px;color:var(--mut);font-size:14px;text-align:right}
-.dot{width:10px;height:10px;border-radius:2px;background:var(--bd);flex:none}.dot.on{background:var(--acc);box-shadow:0 0 6px var(--acc)}
-.logo{display:block;width:100%;max-width:440px;height:auto}
-.tm{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-bottom:12px}
-.tm .big{font-size:14px}
-.lbl{color:var(--mut);font-size:13px}
-.e{font-size:28px}.aw b{display:block}
-.aw{cursor:pointer}.aw:hover,.aw.sel{border-color:var(--acc)}
-#dt{margin-top:14px}#dt[hidden]{display:none}
-.rw{display:grid;grid-template-columns:2.2em 1fr auto;gap:2px 8px;padding:6px 0;border-bottom:1px solid var(--bd)}
-.rw>span:first-child{grid-row:span 2;color:var(--mut)}
+body{margin:0;background:radial-gradient(900px 380px at 50% -120px,color-mix(in srgb,var(--acc) 20%,transparent),transparent),var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;padding:24px 16px 56px}
+main{max-width:1000px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+h1{margin:0;flex:1;min-width:0}.logo{display:block;width:100%;max-width:420px;height:auto}
+.tg{flex:none;background:var(--card);color:var(--ink);border:2px solid var(--bd);border-radius:999px;padding:7px 14px;box-shadow:0 3px 0 var(--sh);font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+.tg:active{transform:translateY(2px);box-shadow:none}
+.sub{color:var(--mut);margin:12px 0 24px}
+h2{font:400 13px/1.5 'Press Start 2P',ui-monospace,monospace;margin:44px 0 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2::before{content:"";width:10px;height:10px;background:var(--acc);box-shadow:4px 4px 0 var(--acc2);margin-right:4px}
+.lbl{color:var(--mut);font:400 13px/1.45 Inter,system-ui,sans-serif}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:14px 16px;box-shadow:0 4px 0 var(--sh)}
+.big{font:800 26px/1.2 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--acc);margin-top:4px;word-break:break-word}
+.tm{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:14px}
+.tm .card{border-left:6px solid var(--acc)}.tm .card+.card{border-left-color:var(--acc2)}
+.tm .big{font:400 15px/1.5 'Press Start 2P',ui-monospace,monospace;margin-top:10px}.tm .card+.card .big{color:var(--acc2)}
+.aw{cursor:pointer;transition:transform .12s,border-color .12s}.aw:hover,.aw.sel{border-color:var(--acc);transform:translateY(-2px)}
+.aw .e{font-size:30px;line-height:1.1}.aw b{display:block;font-size:18px;margin-top:4px}
+#dt{margin-top:16px}#dt[hidden]{display:none}
+.rw{display:grid;grid-template-columns:2.2em 1fr auto;gap:2px 8px;padding:7px 0;border-bottom:1px solid var(--bd)}.rw>span:first-child{grid-row:span 2;color:var(--mut)}
 .bar{grid-column:2;height:6px;background:var(--bd);border-radius:3px}.bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
-.tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:580px}
-th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-th{cursor:pointer;color:var(--mut);font-size:13px;user-select:none}
-th.on{color:var(--acc)}
-li{margin:6px 0}
-details{margin-top:36px}summary{cursor:pointer;font-weight:600}
-button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;border-radius:4px;cursor:pointer}
+.pr{display:flex;align-items:center;gap:12px;padding:9px 8px;border-bottom:1px solid var(--bd);border-radius:8px}.pr:last-child{border:0}
+.pr.on{background:color-mix(in srgb,var(--acc) 11%,transparent)}
+.pr b{flex:1;min-width:0;overflow-wrap:anywhere}
+.av{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-weight:800;color:#fff;background:hsl(var(--h) 50% 42%);flex:none}
+.pr .s{display:flex;align-items:center;gap:8px;color:var(--mut);font-size:14px;text-align:right}
+.dot{width:10px;height:10px;border-radius:2px;background:var(--bd);flex:none}.dot.on{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+@media(max-width:480px){.pr{flex-wrap:wrap}.pr .s{width:100%;padding-left:46px;text-align:left}}
+#fx{list-style:none;padding:0;margin:0;display:grid;gap:10px}#fx li{background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:12px 16px;margin:0}
+button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;border-radius:6px;cursor:pointer}
+footer{margin-top:48px;color:var(--mut);font-size:13px;text-align:center}
 </style></head><body><main>
-<h1 aria-label='Community Attack 2 – Server-Statistiken'><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
+<div class="top"><h1 aria-label="Community Attack 2 – Server-Statistiken"><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
 <g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
 <polygon points='55,14 100,37 55,60 10,37' fill='#5cb338'/>
 <polygon points='10,37 55,60 55,108 10,85' fill='#8a5a35'/>
@@ -55,16 +55,17 @@ button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;b
 <g transform='translate(3 3)' fill='#000' opacity='.3'><text x='138' y='46' font-size='22'>COMMUNITY</text><text x='138' y='92' font-size='38'>ATTACK 2</text></g>
 <text x='138' y='46' font-size='22' style='fill:var(--ink)'>COMMUNITY</text>
 <text x='138' y='92' font-size='38' style='fill:var(--acc)'>ATTACK <tspan fill='#b36bff'>2</tspan></text></g>
-</svg></h1>
-<p class="sub" id="st"></p>
+</svg></h1><button class="tg" id="tg" type="button" aria-label="Farbschema wechseln"></button></div>
+<p class="sub">Live-Statistiken unserer Community · <span id="st"></span></p>
 <div class="grid tm">
 <div class="card"><div class="lbl">⏱️ Server läuft seit<br>10.10.2026, 18:30 Uhr</div><div class="big" id="up"></div></div>
-<div class="card"><div class="lbl">🌌 Öffnung des Ends in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
+<div class="card"><div class="lbl">🌌 Das End öffnet in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
 </div>
 <div class="grid" id="sum"></div>
-<h2>👥 Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
-<h2>🏆 Hall of Fame <span class="lbl">(Karte anklicken für die ganze Liste)</span></h2><div class="grid" id="aw"></div><div class="card" id="dt" hidden></div>
-<h2>🤓 Nutzlose Fakten</h2><ul id="fx"></ul>
+<h2>Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
+<h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div class="grid" id="aw"></div><div class="card" id="dt" hidden></div>
+<h2>Nutzlose Fakten</h2><ul id="fx"></ul>
+<footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.</footer>
 </main>
 <script>
 const DEMO=[
@@ -94,10 +95,11 @@ let SV={on:true,count:2,max:20};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
 DEMO.forEach((p,i)=>{const[o,s]=DS[i];p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
 const ago=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return s<60?'wenigen Sek.':m<60?m+' Min.':h<48?h+' Std.'+(m%60?' '+m%60+' Min.':''):Math.floor(h/24)+' Tagen'};
+const hue=n=>[...n].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
 function plist(){const t=Date.now()/1000,known=P.some(p=>'on' in p),rk=p=>p.on?0:p.last?1:2;
 const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.last||0))||x.n.localeCompare(y.n)),on=a.filter(p=>p.on).length;
 $('pc').textContent=known?(SV&&SV.on===false?'Server offline':on+' online'+(SV&&SV.count>on?' (+'+(SV.count-on)+' ohne Namen)':'')):'';
-$('pl').innerHTML=a.map(p=>`<div class="pr"><b>${esc(p.n)}</b><span class="s"><i class="dot${p.on?' on':''}"></i>${p.on?'online seit '+ago(t-p.since):p.last?`<span title="${new Date(p.last*1000).toLocaleString('de-DE')}">zuletzt online vor ${ago(t-p.last)}</span>`:'Status unbekannt'}</span></div>`).join('')}
+$('pl').innerHTML=a.map(p=>`<div class="pr${p.on?' on':''}"><span class="av" style="--h:${hue(p.n)}">${esc(p.n.charAt(0).toUpperCase())}</span><b>${esc(p.n)}</b><span class="s"><i class="dot${p.on?' on':''}"></i>${p.on?'online seit '+ago(t-p.since):p.last?`<span title="${new Date(p.last*1000).toLocaleString('de-DE')}">zuletzt online vor ${ago(t-p.last)}</span>`:'Status unbekannt'}</span></div>`).join('')}
 setInterval(plist,15000);
 function detail(){const a=AW.find(x=>x[2]==sel),d=$('dt');if(!a){d.hidden=true;return}
 const r=[...P].filter(p=>p[sel]>0).sort((x,y)=>y[sel]-x[sel]),mx=r.length?r[0][sel]:1;
@@ -110,6 +112,10 @@ const T0=new Date('2026-10-10T18:30:00+02:00'),T1=new Date('2026-10-21T18:00:00+
 function dur(ms){const s=Math.floor(ms/1000),d=Math.floor(s/86400);return d+(d==1?' Tag ':' Tage ')+two(Math.floor(s%86400/3600))+':'+two(Math.floor(s%3600/60))+':'+two(s%60)}
 function tick(){const n=Date.now();$('up').textContent=n<T0?'Startet bald':dur(n-T0);$('cd').textContent=n>=T1?'Das End ist offen! 🐉':dur(T1-n)}
 tick();setInterval(tick,1000);
+const root=document.documentElement;
+function setTheme(t){root.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
+(()=>{let t=null;try{t=localStorage.getItem('theme')}catch(e){}setTheme(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})();
+$('tg').onclick=()=>setTheme(root.dataset.theme=='dark'?'light':'dark');
 render();
 async function load(){try{const r=await fetch('stats.json?'+Date.now());if(!r.ok)return;const j=await r.json();if(!Array.isArray(j.players)||!j.players.length)return;P=j.players;SV=j.server||null;demo=false;render();if(j.updated)$('st').textContent+=' Stand: '+new Date(j.updated*1000).toLocaleString('de-DE')}catch(e){}}
 load();setInterval(load,60000);
