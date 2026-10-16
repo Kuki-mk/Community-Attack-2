@@ -39,22 +39,51 @@ h2::before{content:"";width:10px;height:10px;background:var(--acc);box-shadow:4p
 #fx{list-style:none;padding:0;margin:0;display:grid;gap:10px}#fx li{background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:12px 16px;margin:0}
 button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;border-radius:6px;cursor:pointer}
 footer{margin-top:48px;color:var(--mut);font-size:13px;text-align:center}
+main{position:relative;z-index:1}
+.bc{transform-box:fill-box;transform-origin:50% 100%;animation:bob 3.2s ease-in-out infinite}
+.ec{transform-box:fill-box;transform-origin:center;animation:fl 2.6s ease-in-out infinite}
+.gl{transform-box:fill-box;transform-origin:center;opacity:.2;animation:gl 2.6s ease-in-out infinite}
+.sp{opacity:0;animation:tw 2.4s linear infinite}.s2{animation-delay:.8s}.s3{animation-delay:1.6s}
+.t2{animation:t2 2.4s ease-in-out infinite}
+.logo text{animation:in .9s cubic-bezier(.2,.8,.2,1) both}.logo text+text{animation-delay:.15s}
+.logo:hover .bc{animation-duration:.7s}
+@keyframes bob{50%{transform:translateY(-3px)}}
+@keyframes fl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-6px) rotate(6deg)}}
+@keyframes gl{50%{opacity:.4;transform:scale(1.3)}}
+@keyframes tw{0%{opacity:0;transform:translateY(6px)}30%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+@keyframes t2{50%{fill:#e6c9ff}}
+@keyframes in{from{opacity:0;transform:translateX(-18px)}}
+#ptc{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#ptc i{position:absolute;bottom:-20px;opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}10%,90%{opacity:.35}100%{transform:translateY(-105vh) rotate(180deg);opacity:0}}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.rv.in{opacity:1;transform:none}
+.aw{position:relative;overflow:hidden}
+.aw::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%);transform:translateX(-120%);pointer-events:none}
+.aw:hover::after{transform:translateX(120%);transition:transform .7s}
+.dot.on{animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 60%,transparent)}70%,100%{box-shadow:0 0 0 8px transparent}}
+.tm .card+.card{animation:eg 3.2s ease-in-out infinite}
+@keyframes eg{50%{box-shadow:0 4px 0 var(--sh),0 0 22px color-mix(in srgb,var(--acc2) 45%,transparent)}}
+.bar i{transform-origin:left;animation:gr .9s ease both}@keyframes gr{from{transform:scaleX(0)}}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style></head><body><main>
 <div class="top"><h1 aria-label="Community Attack 2 – Server-Statistiken"><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
-<g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
+<g class='bc'><g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
 <polygon points='55,14 100,37 55,60 10,37' fill='#5cb338'/>
 <polygon points='10,37 55,60 55,108 10,85' fill='#8a5a35'/>
 <polygon points='100,37 55,60 55,108 100,85' fill='#6e4627'/></g>
 <polygon points='10,38 55,61 55,73 10,50' fill='#4a9d2f'/>
-<polygon points='100,38 55,61 55,73 100,50' fill='#3f8f2a'/>
-<g stroke='#1b1d1a' stroke-width='2.5' stroke-linejoin='round'>
+<polygon points='100,38 55,61 55,73 100,50' fill='#3f8f2a'/></g>
+<circle class='gl' cx='108' cy='22' r='24' fill='#b887ff'/>
+<g class='ec' stroke='#1b1d1a' stroke-width='2.5' stroke-linejoin='round'>
 <polygon points='108,6 124,14 108,22 92,14' fill='#c38bff'/>
 <polygon points='92,14 108,22 108,38 92,30' fill='#7d3fc4'/>
 <polygon points='124,14 108,22 108,38 124,30' fill='#9a52e0'/></g>
+<rect class='sp' x='130' y='14' width='4' height='4' fill='#d9b3ff'/><rect class='sp s2' x='86' y='10' width='3' height='3' fill='#b887ff'/><rect class='sp s3' x='122' y='34' width='3' height='3' fill='#d9b3ff'/>
 <g font-family='Press Start 2P, ui-monospace, monospace' font-weight='700'>
 <g transform='translate(3 3)' fill='#000' opacity='.3'><text x='138' y='46' font-size='22'>COMMUNITY</text><text x='138' y='92' font-size='38'>ATTACK 2</text></g>
 <text x='138' y='46' font-size='22' style='fill:var(--ink)'>COMMUNITY</text>
-<text x='138' y='92' font-size='38' style='fill:var(--acc)'>ATTACK <tspan fill='#b36bff'>2</tspan></text></g>
+<text x='138' y='92' font-size='38' style='fill:var(--acc)'>ATTACK <tspan class='t2' fill='#b36bff'>2</tspan></text></g>
 </svg></h1><button class="tg" id="tg" type="button" aria-label="Farbschema wechseln"></button></div>
 <p class="sub">Live-Statistiken unserer Community · <span id="st"></span></p>
 <div class="grid tm">
@@ -81,9 +110,9 @@ let P=DEMO,demo=true,sel=null;
 function render(){
 const S=k=>P.reduce((a,p)=>a+(p[k]||0),0);
 $('st').textContent=demo?'Demo-Daten – die ersten echten Statistiken werden geladen, sobald sie verfügbar sind.':P.length+' Spieler geladen.';
-$('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big">${f1(v)}</div></div>`).join('');
+$('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big" data-v="${v}">${f1(v)}</div></div>`).join('');
 $('aw').innerHTML=AW.map(([e,t,k,u])=>{const w=P.reduce((a,p)=>(p[k]||0)>(a[k]||0)?p:a,P[0]||{});return w[k]>0?`<div class="card aw${sel==k?' sel':''}" data-k="${k}" tabindex="0"><div class="e">${e}</div><div class="lbl">${t}</div><b>${esc(w.n)}</b><span class="lbl">${f1(w[k])} ${u}</span></div>`:''}).join('');
-plist();detail();const W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h');
+plist();detail();cu();const W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h');
 $('fx').innerHTML=[
 `Zusammen seid ihr <b>${f1(W)} km</b> gelaufen – das sind ${f1(W/400.75)} % um die Erde.`,
 `Mit ${f1(J)} Sprüngen (ca. 1,25 m pro Sprung) wärt ihr ${f1(J*1.25/8849)}× so hoch wie der Mount Everest gehüpft.`,
@@ -95,6 +124,11 @@ let SV={on:true,count:2,max:20};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
 DEMO.forEach((p,i)=>{const[o,s]=DS[i];p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
 const ago=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return s<60?'wenigen Sek.':m<60?m+' Min.':h<48?h+' Std.'+(m%60?' '+m%60+' Min.':''):Math.floor(h/24)+' Tagen'};
+const PV={};
+function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dataset.v,from=PV[i]||0;PV[i]=v;if(from==v||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/900);el.textContent=f1(from+(v-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const c=document.createElement('div');c.id='ptc';for(let i=0;i<22;i++){const e=document.createElement('i'),z=4+Math.random()*7;e.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*30}s;background:var(${i%3?'--acc':'--acc2'})`;c.appendChild(e)}document.body.prepend(c)}
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08}):null;
+document.querySelectorAll('h2,.tm,#sum,#pl,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
 const hue=n=>[...n].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
 function plist(){const t=Date.now()/1000,known=P.some(p=>'on' in p),rk=p=>p.on?0:p.last?1:2;
 const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.last||0))||x.n.localeCompare(y.n)),on=a.filter(p=>p.on).length;
