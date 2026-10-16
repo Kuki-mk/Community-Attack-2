@@ -1,1 +1,122 @@
-
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Community Attack 2 – Statistiken</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#efe9d8;--card:#fffdf6;--ink:#23261f;--mut:#6b7062;--acc:#3f8f2a;--bd:#c9c0a4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#181a16;--card:#242820;--ink:#ecefe6;--mut:#9aa28d;--acc:#7bd957;--bd:#3b4234}}
+:root[data-theme="dark"]{--bg:#181a16;--card:#242820;--ink:#ecefe6;--mut:#9aa28d;--acc:#7bd957;--bd:#3b4234}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif;padding:20px 16px 48px}
+main{max-width:980px;margin:auto}
+h1,h2,.big{font-family:'Press Start 2P',ui-monospace,monospace;line-height:1.4}
+h1{font-size:clamp(18px,4vw,28px);color:var(--acc);margin:8px 0}
+h2{font-size:14px;margin:36px 0 14px}
+.sub{color:var(--mut);margin:0 0 20px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}
+.card{background:var(--card);border:3px solid var(--bd);border-radius:4px;padding:12px 14px;box-shadow:4px 4px 0 var(--bd)}
+.big{font-size:15px;color:var(--acc);margin-top:6px;word-break:break-word}
+.logo{display:block;width:100%;max-width:440px;height:auto}
+.tm{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-bottom:12px}
+.tm .big{font-size:14px}
+.lbl{color:var(--mut);font-size:13px}
+.e{font-size:28px}.aw b{display:block}
+.aw{cursor:pointer}.aw:hover,.aw.sel{border-color:var(--acc)}
+#dt{margin-top:14px}#dt[hidden]{display:none}
+.rw{display:grid;grid-template-columns:2.2em 1fr auto;gap:2px 8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.rw>span:first-child{grid-row:span 2;color:var(--mut)}
+.bar{grid-column:2;height:6px;background:var(--bd);border-radius:3px}.bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:580px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{cursor:pointer;color:var(--mut);font-size:13px;user-select:none}
+th.on{color:var(--acc)}
+li{margin:6px 0}
+details{margin-top:36px}summary{cursor:pointer;font-weight:600}
+button{font:inherit;background:var(--acc);color:#111;border:0;padding:6px 12px;border-radius:4px;cursor:pointer}
+</style></head><body><main>
+<h1 aria-label='Community Attack 2 – Server-Statistiken'><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
+<g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
+<polygon points='55,14 100,37 55,60 10,37' fill='#5cb338'/>
+<polygon points='10,37 55,60 55,108 10,85' fill='#8a5a35'/>
+<polygon points='100,37 55,60 55,108 100,85' fill='#6e4627'/></g>
+<polygon points='10,38 55,61 55,73 10,50' fill='#4a9d2f'/>
+<polygon points='100,38 55,61 55,73 100,50' fill='#3f8f2a'/>
+<g stroke='#1b1d1a' stroke-width='2.5' stroke-linejoin='round'>
+<polygon points='108,6 124,14 108,22 92,14' fill='#c38bff'/>
+<polygon points='92,14 108,22 108,38 92,30' fill='#7d3fc4'/>
+<polygon points='124,14 108,22 108,38 124,30' fill='#9a52e0'/></g>
+<g font-family='Press Start 2P, ui-monospace, monospace' font-weight='700'>
+<g transform='translate(3 3)' fill='#000' opacity='.3'><text x='138' y='46' font-size='22'>COMMUNITY</text><text x='138' y='92' font-size='38'>ATTACK 2</text></g>
+<text x='138' y='46' font-size='22' style='fill:var(--ink)'>COMMUNITY</text>
+<text x='138' y='92' font-size='38' style='fill:var(--acc)'>ATTACK <tspan fill='#b36bff'>2</tspan></text></g>
+</svg></h1>
+<p class="sub" id="st"></p>
+<div class="grid tm">
+<div class="card"><div class="lbl">⏱️ Server läuft seit<br>10.10.2026, 18:30 Uhr</div><div class="big" id="up"></div></div>
+<div class="card"><div class="lbl">🌌 Öffnung des Ends in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
+</div>
+<div class="grid" id="sum"></div>
+<h2>🏆 Hall of Fame <span class="lbl">(Karte anklicken für die ganze Liste)</span></h2><div class="grid" id="aw"></div><div class="card" id="dt" hidden></div>
+<h2>🤓 Nutzlose Fakten</h2><ul id="fx"></ul>
+<details><summary>Daten importieren</summary>
+<p class="lbl">Wähle mehrere Dateien aus: die Stats-Dateien aus <code>world/stats/*.json</code>, optional <code>usercache.json</code> (für Spielernamen) und/oder einen Plan-JSON-Export. Die Daten bleiben nur in deinem Browser gespeichert.</p>
+<input type="file" id="fi" accept=".json" multiple> <button id="rs">Demo-Daten</button>
+</details></main>
+<script>
+const DEMO=[
+{n:'CreeperKiller99',h:412,d:37,m:58210,j:20311,sw:14.2,w:310,f:52,c:61,mk:3200,ts:96,dt:1480,sl:88,t:2210,ca:4,v:540},
+{n:'xX_Steve_Xx',h:280,d:112,m:23100,j:41200,sw:6.1,w:190,f:12,c:340,mk:1800,ts:3,dt:3900,sl:30,t:310,ca:19,v:120},
+{n:'Alexa',h:530,d:21,m:91200,j:15800,sw:33.4,w:420,f:210,c:12,mk:4100,ts:260,dt:820,sl:140,t:5100,ca:2,v:1250},
+{n:'KuhFlüsterer',h:96,d:15,m:4100,j:9800,sw:2.2,w:75,f:0,c:880,mk:240,ts:41,dt:350,sl:12,t:80,ca:57,v:60},
+{n:'Redstone_Rita',h:344,d:48,m:40200,j:7600,sw:1.3,w:130,f:88,c:25,mk:2600,ts:18,dt:1900,sl:64,t:1450,ca:8,v:310},
+{n:'ElytraEmil',h:188,d:73,m:9000,j:12100,sw:3.8,w:95,f:640,c:9,mk:610,ts:7,dt:2700,sl:21,t:140,ca:3,v:75}];
+const AW=[['⏱️','Dauerzocker','h','Std.'],['💀','Todesmeister','d','Tode'],['⚔️','Monsterjäger','mk','Mob-Kills'],['⛏️','Stein-Zerstörer','m','Blöcke'],['🦘','Hüpfer vom Dienst','j','Sprünge'],['🏊','Wasserratte','sw','km'],['🛏️','Schlafmütze','sl','Nächte'],['🪂','Elytra-Pilot','f','km Flug'],['🧘','Unsterblichster','ts','Std. ohne Tod'],['🛡️','Schadensschwamm','dt','♥ erlitten'],['🗣️','Villager-Flüsterer','v','Gespräche']];
+const $=id=>document.getElementById(id),f1=n=>n.toLocaleString('de-DE',{maximumFractionDigits:1}),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+let P=DEMO,demo=true,sel=null;
+try{const s=localStorage.getItem('mcstats');if(s){const a=JSON.parse(s);if(Array.isArray(a)&&a.length){P=a;demo=false}}}catch(e){}
+function fromStats(s){const st=s.stats||{},cu=st['minecraft:custom']||{},g=k=>cu['minecraft:'+k]||0,sum=o=>Object.values(o||{}).reduce((a,b)=>a+b,0),k=(c,i)=>(st['minecraft:'+c]||{})['minecraft:'+i]||0;
+return{h:(g('play_time')||g('play_one_minute'))/72000,d:g('deaths'),m:sum(st['minecraft:mined']),j:g('jump'),sw:g('swim_one_cm')/1e5,w:(g('walk_one_cm')+g('sprint_one_cm'))/1e5,f:g('aviate_one_cm')/1e5,c:k('killed','cow'),mk:g('mob_kills'),ts:g('time_since_death')/72000,dt:g('damage_taken')/20,sl:g('sleep_in_bed'),t:k('used','torch'),ca:g('eat_cake_slice'),v:g('talked_to_villager')}}
+function render(){
+const S=k=>P.reduce((a,p)=>a+(p[k]||0),0);
+$('st').textContent=demo?'Demo-Daten – echte Daten kannst du unten importieren.':P.length+' Spieler geladen.';
+$('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big">${f1(v)}</div></div>`).join('');
+$('aw').innerHTML=AW.map(([e,t,k,u])=>{const w=P.reduce((a,p)=>(p[k]||0)>(a[k]||0)?p:a,P[0]||{});return w[k]>0?`<div class="card aw${sel==k?' sel':''}" data-k="${k}" tabindex="0"><div class="e">${e}</div><div class="lbl">${t}</div><b>${esc(w.n)}</b><span class="lbl">${f1(w[k])} ${u}</span></div>`:''}).join('');
+detail();const W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h');
+$('fx').innerHTML=[
+`Zusammen seid ihr <b>${f1(W)} km</b> gelaufen – das sind ${f1(W/400.75)} % um die Erde.`,
+`Mit ${f1(J)} Sprüngen (ca. 1,25 m pro Sprung) wärt ihr ${f1(J*1.25/8849)}× so hoch wie der Mount Everest gehüpft.`,
+`Ihr seid ${f1(SW)} km geschwommen – der Ärmelkanal (ca. 33 km) wäre ${f1(SW/33)}× durchquert.`,
+D?`Im Schnitt stirbt ein Spieler alle ${f1(H/D)} Spielstunden.`:'',
+`Eure gesamte Spielzeit: ${f1(H/24)} Tage am Stück – ohne Schlaf.`
+].filter(Boolean).map(t=>`<li>${t}</li>`).join('')}
+function detail(){const a=AW.find(x=>x[2]==sel),d=$('dt');if(!a){d.hidden=true;return}
+const r=[...P].filter(p=>p[sel]>0).sort((x,y)=>y[sel]-x[sel]),mx=r.length?r[0][sel]:1;
+d.hidden=false;
+d.innerHTML=`<div class="lbl">${a[0]} ${a[1]} – komplette Liste <button id="cl" style="float:right">✕</button></div>`+r.map((p,i)=>`<div class="rw"><span>${i+1}.</span><span>${esc(p.n)}</span><b>${f1(p[sel])} ${a[3]}</b><div class="bar"><i style="width:${p[sel]/mx*100}%"></i></div></div>`).join('')}
+$('aw').onclick=e=>{const c=e.target.closest('.aw');if(c){sel=sel==c.dataset.k?null:c.dataset.k;render();if(sel)$('dt').scrollIntoView({block:'nearest',behavior:'smooth'})}};
+$('aw').onkeydown=e=>{if(e.key=='Enter'||e.key==' '){const c=e.target.closest('.aw');if(c){e.preventDefault();c.click()}}};
+$('dt').onclick=e=>{if(e.target.id=='cl'){sel=null;render()}};
+$('rs').onclick=()=>{P=DEMO;demo=true;try{localStorage.removeItem('mcstats')}catch(x){}render()};
+$('fi').onchange=async e=>{
+const names={},sts=[],pl=[],m={};
+for(const f of e.target.files){let j;try{j=JSON.parse(await f.text())}catch(x){continue}
+if(Array.isArray(j)&&j[0]&&j[0].uuid)j.forEach(u=>names[u.uuid.replace(/-/g,'')]=u.name);
+else if(j.stats)sts.push([f.name.replace(/\.json$/i,'').replace(/-/g,''),j]);
+else pl.push(...((j.players&&j.players.data)||j.data||(Array.isArray(j)?j:[])))}
+sts.forEach(([id,j])=>{const n=names[id]||'Spieler '+id.slice(0,6);m[n.toLowerCase()]={n,...fromStats(j)}});
+pl.forEach(r=>{const n=r.playerName||r.name;if(!n)return;const o=m[n.toLowerCase()]||(m[n.toLowerCase()]={n,h:0,d:0,m:0,j:0,sw:0,w:0,f:0,c:0,cr:0,sl:0,t:0,ca:0,v:0});
+if(typeof r.playtime=='number'&&!o.h)o.h=r.playtime/36e5;if(typeof r.deaths=='number'&&!o.d)o.d=r.deaths});
+const a=Object.values(m);
+if(!a.length){$('st').textContent='Keine passenden Daten erkannt.';return}
+P=a;demo=false;try{localStorage.setItem('mcstats',JSON.stringify(P))}catch(x){}render()};
+const T0=new Date('2026-10-10T18:30:00+02:00'),T1=new Date('2026-10-21T18:00:00+02:00'),two=n=>String(n).padStart(2,'0');
+function dur(ms){const s=Math.floor(ms/1000),d=Math.floor(s/86400);return d+(d==1?' Tag ':' Tage ')+two(Math.floor(s%86400/3600))+':'+two(Math.floor(s%3600/60))+':'+two(s%60)}
+function tick(){const n=Date.now();$('up').textContent=n<T0?'Startet bald':dur(n-T0);$('cd').textContent=n>=T1?'Das End ist offen! 🐉':dur(T1-n)}
+tick();setInterval(tick,1000);
+render();
+async function load(){try{const r=await fetch('stats.json?'+Date.now());if(!r.ok)return;const j=await r.json();if(!Array.isArray(j.players)||!j.players.length)return;P=j.players;demo=false;render();if(j.updated)$('st').textContent+=' Stand: '+new Date(j.updated*1000).toLocaleString('de-DE')}catch(e){}}
+load();setInterval(load,60000);
+</script></body></html>
