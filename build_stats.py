@@ -39,7 +39,12 @@ def ftp_download(ftp):
     world = os.environ.get("WORLD_DIR") or "world"
     home = ftp.pwd()
     RAW.mkdir(exist_ok=True)
-    ftp.cwd(world + "/stats")
+    try:
+        ftp.cwd(world + "/stats")
+    except ftplib.error_perm:
+        ftp.cwd(home)
+        print(f"Ordner '{world}/stats' nicht gefunden. Inhalt von '{home}':", ftp.nlst())
+        raise
     mt = {}
     try:  # Änderungszeiten (UTC), falls der Server MLSD kann
         for n, facts in ftp.mlsd(facts=["modify"]):
@@ -74,6 +79,9 @@ def ftp_download(ftp):
 
 def fetch_ftp():
     """Erst verschlüsselt (FTPS), sonst als normales FTP."""
+    miss = [k for k in ("FTP_HOST", "FTP_USER", "FTP_PASS") if not os.environ.get(k)]
+    if miss:
+        raise SystemExit("Fehlende Secrets: " + ", ".join(miss))
     host, port = os.environ["FTP_HOST"], int(os.environ.get("FTP_PORT") or 21)
     for cls in (ftplib.FTP_TLS, ftplib.FTP):
         try:
