@@ -20,6 +20,10 @@ jobs:
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
           WORLD_DIR: ${{ secrets.WORLD_DIR }}
           MC_HOST: ${{ secrets.MC_HOST }}
           MC_PORT: ${{ secrets.MC_PORT }}
