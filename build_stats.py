@@ -208,8 +208,8 @@ def build():
 
 
 if __name__ == "__main__":
-    if os.environ.get("SFTP_HOST"):
-        fetch_sftp()
-    elif os.environ.get("FTP_HOST"):
+    if os.environ.get("FTP_HOST"):  # FTP hat Vorrang, übrig gebliebene SFTP-Secrets stören nicht
         fetch_ftp()
+    elif os.environ.get("SFTP_HOST"):
+        fetch_sftp()
     build()
