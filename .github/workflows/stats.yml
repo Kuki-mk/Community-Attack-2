@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Baut docs/stats.json: Stats-Dateien (per SFTP, FTP oder aus ./raw) plus Online-Status per Server-Ping."""
 import calendar
 import ftplib
 import json
