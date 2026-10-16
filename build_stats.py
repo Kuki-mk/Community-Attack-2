@@ -60,29 +60,46 @@ def ftp_list(ftp):
     return out
 
 
-def find_world(ftp, home):
-    """Sucht den Welt-Ordner (der Unterordner 'stats' enthält); danach steht ftp in <welt>/stats."""
-    lines = []
-    ftp.cwd(home)
-    ftp.retrlines("LIST", lines.append)
-    dirs = [l.split()[-1] for l in lines if l.startswith("d") and l.split()[-1] not in (".", "..")]
-    want = os.environ.get("WORLD_DIR") or "world"
-    for c in dict.fromkeys([want] + dirs + [d + "/world" for d in dirs]):
+SKIP = {"libraries", "versions", "plugins", "logs", "cache", "config", "crash-reports", "backups"}
+
+
+def find_stats(ftp, home):
+    """Sucht den Ordner 'stats' (z. B. world/stats oder <Welt>/players/stats). Danach steht ftp darin."""
+    want = os.environ.get("WORLD_DIR")
+    queue = ([(want.strip("/"), 0)] if want else []) + [("", 0)]
+    seen, root = set(), []
+    while queue:
+        path, depth = queue.pop(0)
+        if path in seen:
+            continue
+        seen.add(path)
+        lines = []
         try:
             ftp.cwd(home)
-            ftp.cwd(c + "/stats")
-            print("Welt gefunden:", c)
-            return c
+            if path:
+                ftp.cwd(path)
+            ftp.retrlines("LIST", lines.append)
         except ftplib.error_perm:
             continue
-    print(f"Kein Ordner mit 'stats' gefunden. Inhalt von '{home}':")
-    print("\n".join(lines))
-    raise SystemExit("Welt-Ordner nicht gefunden – bitte WORLD_DIR setzen")
+        if path == "":
+            root = lines
+        if posixpath.basename(path) == "stats" and any(l.split()[-1].endswith(".json") for l in lines if l.split()):
+            return path
+        if depth >= 3:
+            continue
+        for l in lines:
+            p = l.split()
+            if p and l.startswith("d") and p[-1] not in SKIP and not p[-1].startswith("."):
+                queue.append((f"{path}/{p[-1]}".lstrip("/"), depth + 1))
+    print(f"Kein Ordner 'stats' mit .json-Dateien gefunden. Inhalt von '{home}':")
+    print("\n".join(root))
+    raise SystemExit("Stats-Ordner nicht gefunden – bitte WORLD_DIR auf den Welt-Ordner setzen")
 
 
 def ftp_download(ftp):
     home = ftp.pwd()
-    world = find_world(ftp, home)
+    stats = find_stats(ftp, home)
+    print("Stats-Ordner gefunden:", stats)
     RAW.mkdir(exist_ok=True)
     mt = {}
     try:  # Änderungszeiten (UTC), falls der Server MLSD kann
@@ -106,15 +123,18 @@ def ftp_download(ftp):
             ts = calendar.timegm(time.strptime(m[:14], "%Y%m%d%H%M%S"))
         ts = ts or info.get(n) or 0  # 0 = unbekannt
         os.utime(dst, (ts, ts))
-    ftp.cwd(home)
-    base = posixpath.dirname(world)
-    if base:
-        ftp.cwd(base)
-    try:
-        with open(RAW / "usercache.json", "wb") as fh:
-            ftp.retrbinary("RETR usercache.json", fh.write)
-    except ftplib.all_errors:
-        pass
+    parts = stats.split("/")  # usercache.json liegt im Server-Hauptordner: von innen nach außen suchen
+    for k in range(len(parts) - 1, -1, -1):
+        buf = []
+        try:
+            ftp.cwd(home)
+            if k:
+                ftp.cwd("/".join(parts[:k]))
+            ftp.retrbinary("RETR usercache.json", buf.append)
+            (RAW / "usercache.json").write_bytes(b"".join(buf))
+            break
+        except ftplib.all_errors:
+            continue
 
 
 def fetch_ftp():
