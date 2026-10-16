@@ -60,16 +60,30 @@ def ftp_list(ftp):
     return out
 
 
+def find_world(ftp, home):
+    """Sucht den Welt-Ordner (der Unterordner 'stats' enthält); danach steht ftp in <welt>/stats."""
+    lines = []
+    ftp.cwd(home)
+    ftp.retrlines("LIST", lines.append)
+    dirs = [l.split()[-1] for l in lines if l.startswith("d") and l.split()[-1] not in (".", "..")]
+    want = os.environ.get("WORLD_DIR") or "world"
+    for c in dict.fromkeys([want] + dirs + [d + "/world" for d in dirs]):
+        try:
+            ftp.cwd(home)
+            ftp.cwd(c + "/stats")
+            print("Welt gefunden:", c)
+            return c
+        except ftplib.error_perm:
+            continue
+    print(f"Kein Ordner mit 'stats' gefunden. Inhalt von '{home}':")
+    print("\n".join(lines))
+    raise SystemExit("Welt-Ordner nicht gefunden – bitte WORLD_DIR setzen")
+
+
 def ftp_download(ftp):
-    world = os.environ.get("WORLD_DIR") or "world"
     home = ftp.pwd()
+    world = find_world(ftp, home)
     RAW.mkdir(exist_ok=True)
-    try:
-        ftp.cwd(world + "/stats")
-    except ftplib.error_perm:
-        ftp.cwd(home)
-        print(f"Ordner '{world}/stats' nicht gefunden. Inhalt von '{home}':", ftp.nlst())
-        raise
     mt = {}
     try:  # Änderungszeiten (UTC), falls der Server MLSD kann
         for n, facts in ftp.mlsd(facts=["modify"]):
