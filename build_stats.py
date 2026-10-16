@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Baut docs/stats.json: Stats-Dateien (per SFTP oder aus ./raw) plus Online-Status per Server-Ping."""
+"""Baut docs/stats.json: Stats-Dateien (per SFTP, FTP oder aus ./raw) plus Online-Status per Server-Ping."""
+import calendar
+import ftplib
 import json
 import os
+import posixpath
 import socket
 import struct
 import time
@@ -25,11 +28,67 @@ def fetch_sftp():
             if a.st_mtime:  # Änderungszeit = Zeitpunkt des letzten Speicherns (≈ Logout)
                 os.utime(dst, (a.st_mtime, a.st_mtime))
     try:
-        s.get("usercache.json", str(RAW / "usercache.json"))
+        s.get(posixpath.join(posixpath.dirname(world), "usercache.json"), str(RAW / "usercache.json"))
     except OSError:
         pass
     s.close()
     t.close()
+
+
+def ftp_download(ftp):
+    world = os.environ.get("WORLD_DIR") or "world"
+    home = ftp.pwd()
+    RAW.mkdir(exist_ok=True)
+    ftp.cwd(world + "/stats")
+    mt = {}
+    try:  # Änderungszeiten (UTC), falls der Server MLSD kann
+        for n, facts in ftp.mlsd(facts=["modify"]):
+            if n.endswith(".json") and "modify" in facts:
+                mt[n] = facts["modify"]
+    except ftplib.all_errors:
+        pass
+    names = list(mt) or [posixpath.basename(n) for n in ftp.nlst() if n.endswith(".json")]
+    for n in names:
+        dst = RAW / n
+        with open(dst, "wb") as fh:
+            ftp.retrbinary("RETR " + n, fh.write)
+        m = mt.get(n)
+        if not m:
+            try:
+                m = ftp.voidcmd("MDTM " + n)[4:].strip()
+            except ftplib.all_errors:
+                m = None
+        if m:
+            ts = calendar.timegm(time.strptime(m[:14], "%Y%m%d%H%M%S"))
+            os.utime(dst, (ts, ts))
+    ftp.cwd(home)
+    base = posixpath.dirname(world)
+    if base:
+        ftp.cwd(base)
+    try:
+        with open(RAW / "usercache.json", "wb") as fh:
+            ftp.retrbinary("RETR usercache.json", fh.write)
+    except ftplib.all_errors:
+        pass
+
+
+def fetch_ftp():
+    """Erst verschlüsselt (FTPS), sonst als normales FTP."""
+    host, port = os.environ["FTP_HOST"], int(os.environ.get("FTP_PORT") or 21)
+    for cls in (ftplib.FTP_TLS, ftplib.FTP):
+        try:
+            ftp = cls()
+            ftp.connect(host, port, timeout=30)
+            ftp.login(os.environ["FTP_USER"], os.environ["FTP_PASS"])
+            if cls is ftplib.FTP_TLS:
+                ftp.prot_p()
+            ftp_download(ftp)
+            ftp.close()
+            print("FTP-Verbindung:", cls.__name__)
+            return
+        except ftplib.all_errors as e:
+            print(cls.__name__, "fehlgeschlagen:", e)
+    raise SystemExit("FTP-Abruf fehlgeschlagen")
 
 
 def varint(n):
@@ -143,4 +202,6 @@ def build():
 if __name__ == "__main__":
     if os.environ.get("SFTP_HOST"):
         fetch_sftp()
+    elif os.environ.get("FTP_HOST"):
+        fetch_ftp()
     build()
