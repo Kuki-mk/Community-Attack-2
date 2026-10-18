@@ -218,6 +218,12 @@ def ftp_download(ftp):
                 ftp.cwd("/".join(parts[:k]))
             ftp.retrbinary("RETR usercache.json", buf.append)
             (RAW / "usercache.json").write_bytes(b"".join(buf))
+            try:  # server.properties liegt daneben: daraus liest das Skript den Spielport
+                pr = []
+                ftp.retrbinary("RETR server.properties", pr.append)
+                (RAW / "server.properties").write_bytes(b"".join(pr))
+            except ftplib.all_errors:
+                pass
             break
         except ftplib.all_errors:
             continue
@@ -265,6 +271,18 @@ def read_varint(s):
 
 
 PING_ERR = {}
+
+
+def server_ports():
+    """Mögliche Spielports: server-port und query.port aus server.properties, zuletzt 25565."""
+    ports = []
+    try:
+        props = dict(l.split("=", 1) for l in (RAW / "server.properties").read_text("utf-8").splitlines()
+                     if "=" in l and not l.startswith("#"))
+        ports = [int(props[k].strip()) for k in ("server-port", "query.port") if props.get(k, "").strip().isdigit()]
+    except OSError:
+        pass
+    return list(dict.fromkeys(ports + [25565]))
 
 
 def motd_text(d):
@@ -479,15 +497,20 @@ def build():
     if not host:
         print("MC_HOST nicht gesetzt – Server-Status und Online-Anzeige werden übersprungen.")
     if host:
-        port = int(os.environ.get("MC_PORT") or 25565)
-        info = ping(host, port)
+        ports = [int(os.environ["MC_PORT"])] if os.environ.get("MC_PORT") else server_ports()
+        if not os.environ.get("MC_PORT"):
+            print("MC_PORT nicht gesetzt – probiere Ports:", ports)
+        info, port = None, ports[0]
+        for port in ports:
+            info = ping(host, port)
+            if info:
+                break
+            print(f"Server-Ping auf {host}:{port} fehlgeschlagen – {PING_ERR.get('e', '?')}")
         if info:
-            print(f"Server-Ping OK: {info.get('players', {}).get('online', 0)}/{info.get('players', {}).get('max', 0)} Spieler,"
+            print(f"Server-Ping OK auf {host}:{port}: {info.get('players', {}).get('online', 0)}/{info.get('players', {}).get('max', 0)} Spieler,"
                   f" {(info.get('version') or {}).get('name', '?')}, {info.get('_ms')} ms")
         else:
-            print(f"Server-Ping FEHLGESCHLAGEN für {host}:{port} – Grund: {PING_ERR.get('e', '?')}")
-            if not os.environ.get("MC_PORT"):
-                print("Hinweis: MC_PORT ist nicht gesetzt (Standard 25565). Hoster nutzen oft einen eigenen Spielport.")
+            print("Server-Ping FEHLGESCHLAGEN auf allen Ports. Prüfe MC_HOST und den Spielport (server-port in server.properties).")
         pl = (info or {}).get("players", {})
         online = {x["name"] for x in pl.get("sample", [])}
         server = {"on": info is not None, "count": pl.get("online", 0), "max": pl.get("max", 0)}
