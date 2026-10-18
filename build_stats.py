@@ -260,8 +260,20 @@ def read_varint(s):
     raise ValueError("varint")
 
 
+def motd_text(d):
+    """Server-Beschreibung (String oder Text-Komponente) -> reiner Text."""
+    if isinstance(d, str):
+        return d
+    if isinstance(d, list):
+        return "".join(motd_text(e) for e in d)
+    if isinstance(d, dict):
+        return d.get("text", "") + "".join(motd_text(e) for e in d.get("extra", []))
+    return ""
+
+
 def ping(host, port):
-    """Minecraft Server-List-Ping. Liefert das Status-JSON oder None."""
+    """Minecraft Server-List-Ping. Liefert das Status-JSON (plus _ms) oder None."""
+    t0 = time.time()
     try:
         with socket.create_connection((host, port), timeout=8) as s:
             h = host.encode()
@@ -275,7 +287,9 @@ def ping(host, port):
                 if not chunk:
                     break
                 buf += chunk
-            return json.loads(buf)
+            info = json.loads(buf)
+            info["_ms"] = round((time.time() - t0) * 1000)
+            return info
     except (OSError, ValueError, IndexError):
         return None
 
@@ -369,6 +383,9 @@ def build():
         pl = (info or {}).get("players", {})
         online = {x["name"] for x in pl.get("sample", [])}
         server = {"on": info is not None, "count": pl.get("online", 0), "max": pl.get("max", 0)}
+        if info:
+            txt = re.sub(r"\s+", " ", re.sub("§.", "", motd_text(info.get("description", "")))).strip()
+            server.update(ver=(info.get("version") or {}).get("name", ""), ms=info.get("_ms"), motd=txt)
         known = {p["n"] for p in players}
         players += [{"n": n, **{k: 0 for k in NUM}} for n in sorted(online - known)]
         for p in players:
@@ -382,7 +399,8 @@ def build():
                 p["on"] = False
                 p["ls"] = prev.get(p["n"], {}).get("ls", 0)
 
-    if (old.get("players"), old.get("server")) != (players, server):  # nur bei Änderung schreiben
+    core = lambda sv: {k: v for k, v in (sv or {}).items() if k != "ms"}  # Antwortzeit allein löst kein Update aus
+    if (old.get("players"), core(old.get("server"))) != (players, core(server)):  # nur bei Änderung schreiben
         OUT.parent.mkdir(exist_ok=True)
         OUT.write_text(json.dumps({"updated": now, "server": server, "players": players},
                                   ensure_ascii=False), "utf-8")
