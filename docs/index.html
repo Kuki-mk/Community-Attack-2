@@ -131,7 +131,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 </svg></h1><button class="tg" id="tg" type="button" aria-label="Farbschema wechseln"></button></div>
 <p class="sub">Live-Statistiken unserer Community · <span id="st"></span></p>
 <nav id="nv" aria-label="Navigation">
-<a href="#top">🏠 Start</a><a href="#s-ziele">🎯 Ziele</a><a href="#s-spieler">👥 Spieler</a><a href="#s-karten">🃏 Karten</a><a href="#s-hof">🏆 Hall of Fame</a><a href="#s-fakten">🤓 Fakten</a><a href="#s-gb">💬 Gästebuch</a>
+<a href="#top">🏠 Start</a><a href="#s-ziele">🎯 Ziele</a><a href="#s-spieler">👥 Spieler</a><a href="#s-karten">🃏 Karten</a><a href="#s-hof">🏆 Hall of Fame</a><a href="#s-fakten">🤓 Fakten</a>
 </nav>
 <div class="grid tm">
 <div class="card"><div class="lbl">⏱️ Server läuft seit<br>10.10.2026, 18:30 Uhr</div><div class="big" id="up"></div></div>
@@ -144,7 +144,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <h2 id="s-karten">Sammelkarten <span class="lbl">Tippe auf eine Karte für das Profil</span></h2><div class="cards" id="tc"></div>
 <h2 id="s-hof">Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div id="aw"></div>
 <h2 id="s-fakten">Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
-<h2 id="s-gb">Gästebuch</h2><div class="card" id="gb"></div>
 <footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.<br>Spielerköpfe von <a href="https://mc-heads.net">MCHeads</a></footer>
 </main>
 <div id="mc" role="img" aria-label="Maskottchen Glibbi"></div><div id="mb" role="status"></div>
@@ -188,7 +187,7 @@ const PV={};
 function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dataset.v,from=PV[i]||0;PV[i]=v;if(from==v||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/900);el.textContent=f1(from+(v-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const c=document.createElement('div');c.id='ptc';for(let i=0;i<22;i++){const e=document.createElement('i'),z=4+Math.random()*7;e.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*30}s;background:var(${i%3?'--acc':'--acc2'})`;c.appendChild(e)}document.body.prepend(c)}
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08}):null;
-document.querySelectorAll('h2,.tm,#sum,#gl,#pl,#tc,#aw,#fx,#gb,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
+document.querySelectorAll('h2,.tm,#sum,#gl,#pl,#tc,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
 let FO=null,fo=0;
 function facts(){const S=k=>P.reduce((a,p)=>a+(p[k]||0),0),W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h'),M=S('m'),K=S('mk'),F=S('f'),DT=S('dt'),SL=S('sl'),V=S('v'),N=P.length,b=t=>`<b>${t}</b>`,
 top=fn=>{const p=P.reduce((m,x)=>fn(x)>fn(m)?x:m,P[0]||{});return fn(p)>0?p:null},
@@ -242,7 +241,7 @@ for(let i=0;i<44;i++){const e=document.createElement('i'),a=Math.random()*6.28,d
 document.body.animate([{transform:'translate(0)'},{transform:'translate(-8px,4px)'},{transform:'translate(7px,-5px)'},{transform:'translate(-4px,3px)'},{transform:'translate(0)'}],{duration:420});toast('💥 Kaboom! Keine Sorge – deine Blöcke sind noch da.')}
 const KC=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 addEventListener('keydown',e=>{ki=(e.key==KC[ki]||e.key.toLowerCase()==KC[ki])?ki+1:(e.key==KC[0]?1:0);if(ki==KC.length){ki=0;root.classList.add('end');toast('🐉 Der Enderdrache erwacht …');setTimeout(()=>root.classList.remove('end'),12000)}});
-function banner(){const b=$('sb');if(!SV||!('on' in SV)){b.hidden=true;return}b.hidden=false;
+function banner(){const b=$('sb');if(!SV||!('on' in SV)){b.hidden=demo;b.innerHTML='<span class="mt">ℹ️ Server-Status derzeit nicht verfügbar.</span>';return}b.hidden=false;
 b.innerHTML=`<span class="sd"><i class="dot${SV.on?' on':''}"></i>${SV.on?'Server online':'Server offline'}</span>`+(SV.on?`<span class="chip">👥 ${SV.count}/${SV.max}</span>`:'')+(SV.ver?`<span class="chip">🧩 ${esc(SV.ver)}</span>`:'')+(SV.on&&SV.ms!=null?`<span class="chip">📶 ${SV.ms} ms</span>`:'')+(SV.motd?`<span class="mt">${esc(SV.motd)}</span>`:'')}
 const RN=['Gewöhnlich','Selten','Episch','Legendär'];
 let RR={};
@@ -265,12 +264,6 @@ const QUIPS=['Blubb!','Ssst … probier mal den Konami-Code.','Fünfmal aufs Log
 mc.addEventListener('click',()=>{mc.classList.add('jump');setTimeout(()=>mc.classList.remove('jump'),600);const pool=[...QUIPS,...facts().filter(Boolean).map(x=>'Wusstest du? '+x.replace(/<[^>]+>/g,''))];say(pool[Math.floor(Math.random()*pool.length)])});
 function roam(){const to=Math.max(10,Math.random()*(innerWidth-60)),dur=Math.abs(to-mx)/45;mc.classList.toggle('flip',to<mx);mc.style.transitionDuration=dur+'s';mc.classList.add('walk');mc.style.left=to+'px';mx=to;setTimeout(()=>mc.classList.remove('walk'),dur*1000);setTimeout(roam,dur*1000+2000+Math.random()*5000)}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setTimeout(roam,3000);
-// Gästebuch (giscus): vier Werte von giscus.app eintragen, siehe Anleitung
-const GISCUS={repo:'Kuki-mk/Community-Attack-2',repoId:'R_kgDOVMGa9g',category:'Gästebuch',categoryId:'DIC_kwDOVMGa9s4DI5Lm'};
-function gbInit(){const g=$('gb');if(!GISCUS.repoId||!GISCUS.categoryId){g.innerHTML='<p class="lbl" style="margin:0">Das Gästebuch wird gerade eingerichtet – bald kannst du hier einen Gruß hinterlassen.</p>';return}
-g.innerHTML='<p class="lbl" style="margin:0 0 12px">Zum Schreiben brauchst du ein GitHub-Konto. Beim Laden werden Daten von giscus.app und GitHub abgerufen.</p>';
-const load=()=>{const s=document.createElement('script');s.src='https://giscus.app/client.js';Object.entries({repo:GISCUS.repo,'repo-id':GISCUS.repoId,category:GISCUS.category,'category-id':GISCUS.categoryId,mapping:'specific',term:'Gästebuch',strict:'0','reactions-enabled':'1','emit-metadata':'0','input-position':'top',theme:root.dataset.theme=='dark'?'dark':'light',lang:'de',loading:'lazy'}).forEach(([k,v])=>s.setAttribute('data-'+k,v));s.crossOrigin='anonymous';s.async=true;g.appendChild(s)};
-'IntersectionObserver' in window?new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();load()}}).observe(g):load()}
 const navL=[...$('nv').querySelectorAll('a')].map(a=>[a,document.getElementById(a.getAttribute('href').slice(1))]);let navCur=null;
 function spy(){$('up2').classList.toggle('show',scrollY>600);if(!navL.length)return;const y=innerHeight*.35;let cur=navL[0][0];for(const [a,el] of navL)if(el&&el.getBoundingClientRect().top<=y)cur=a;
 if(cur!==navCur){navCur=cur;navL.forEach(([a])=>a.classList.toggle('on',a===cur));cur.scrollIntoView({block:'nearest',inline:'center'})}}
@@ -290,10 +283,10 @@ function dur(ms){const s=Math.floor(ms/1000),d=Math.floor(s/86400);return d+(d==
 function tick(){const n=Date.now();$('up').textContent=n<T0?'Startet bald':dur(n-T0);$('cd').textContent=n>=T1?'Das End ist offen! 🐉':dur(T1-n)}
 tick();setInterval(tick,1000);
 const root=document.documentElement;
-function setTheme(t){root.dataset.theme=t;{const f=document.querySelector('iframe.giscus-frame');if(f)f.contentWindow.postMessage({giscus:{setConfig:{theme:t=='dark'?'dark':'light'}}},'https://giscus.app')}try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
+function setTheme(t){root.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
 (()=>{let t=null;try{t=localStorage.getItem('theme')}catch(e){}setTheme(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})();
 $('tg').onclick=()=>setTheme(root.dataset.theme=='dark'?'light':'dark');
-render();hashOpen();gbInit();spy();
+render();hashOpen();spy();
 async function load(){try{const r=await fetch('stats.json?'+Date.now());if(!r.ok)return;const j=await r.json();if(!Array.isArray(j.players)||!j.players.length)return;P=j.players;SV=j.server||null;demo=false;render();if(j.updated)$('st').textContent+=' Stand: '+new Date(j.updated*1000).toLocaleString('de-DE');hashOpen()}catch(e){}}
 load();setInterval(load,60000);
 </script></body></html>
