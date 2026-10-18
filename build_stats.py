@@ -3,6 +3,7 @@
 import calendar
 import ftplib
 import gzip
+import hashlib
 import json
 import os
 import posixpath
@@ -10,6 +11,9 @@ import re
 import socket
 import struct
 import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 RAW, OUT = Path("raw"), Path("docs/stats.json")
@@ -294,6 +298,96 @@ def ping(host, port):
         return None
 
 
+# ---------- Discord-Panel (optional, Secret DISCORD_WEBHOOK) ----------
+START = int(datetime(2026, 10, 10, 16, 30, tzinfo=timezone.utc).timestamp())  # 10.10.2026 18:30 MESZ
+END = int(datetime(2026, 10, 21, 16, 0, tzinfo=timezone.utc).timestamp())     # 21.10.2026 18:00 MESZ
+STATE = Path("discord_state.json")
+AWARDS = [("⏱️", "Dauerzocker", "h", "Std."), ("💀", "Todesmeister", "d", "Tode"), ("⚔️", "Monsterjäger", "mk", "Mob-Kills"),
+          ("⛏️", "Stein-Zerstörer", "m", "Blöcke"), ("🦘", "Hüpfer", "j", "Sprünge"), ("🏊", "Wasserratte", "sw", "km"),
+          ("🪂", "Elytra-Pilot", "f", "km"), ("🔌", "Redstone-Ingenieur", "rs", "Teile"),
+          ("📜", "Achievement-Jäger", "ac", "Fortschritte"), ("🧪", "Level-Farmer", "lg", "Level")]
+GOALS = [("⛏️", "Gemeinsam abgebaut", "m"), ("🧱", "Gemeinsam platziert (geschätzt)", "pl")]
+
+
+def de(v):
+    s = f"{v:,.1f}".replace(",", "#").replace(".", ",").replace("#", ".")
+    return s[:-2] if s.endswith(",0") else s
+
+
+def md(s):
+    return re.sub(r"([\\_*~`|>])", r"\\\1", s)
+
+
+def discord_embed(players, server, now):
+    site = os.environ.get("SITE_URL", "")
+    on = sorted((p for p in players if p.get("on")), key=lambda p: p.get("since", now))
+    desc, fields = "", []
+    if server is not None:
+        desc = " · ".join(["🟢 **Online**" if server.get("on") else "🔴 **Offline**",
+                           f"👥 {server.get('count', 0)}/{server.get('max', 0)}"] + ([f"🧩 {server['ver']}"] if server.get("ver") else []))
+        names = "\n".join(f"**{md(p['n'])}** · seit <t:{p['since']}:R>" for p in on[:15])
+        fields.append({"name": "👥 Online jetzt", "value": names or "Gerade ist niemand online.", "inline": False})
+    fields.append({"name": "⏱️ Server läuft seit", "value": f"<t:{START}:D> · <t:{START}:R>", "inline": True})
+    fields.append({"name": "🌌 Das End öffnet", "inline": True,
+                   "value": "🐉 **Das End ist offen!**" if now >= END else f"<t:{END}:f> · <t:{END}:R>"})
+    goals = []
+    for e, t, k in GOALS:
+        v = sum(p.get(k, 0) for p in players)
+        pr = v / 1_000_000 * 100
+        n = round(min(pr, 100) / 10)
+        goals.append(f"{e} {t}\n{'▰' * n}{'▱' * (10 - n)} **{de(pr)} %** · {de(v)} / 1.000.000")
+    fields.append({"name": "🎯 Community-Ziele", "value": "\n".join(goals), "inline": False})
+    hof = []
+    for e, t, k, u in AWARDS:
+        top = max(players, key=lambda p: p.get(k, 0), default=None)
+        if top and top.get(k, 0) > 0:
+            hof.append(f"{e} {t}: **{md(top['n'])}** ({de(top[k])} {u})")
+    if hof:
+        fields.append({"name": "🏆 Hall of Fame", "value": "\n".join(hof), "inline": False})
+    emb = {"title": "Community Attack 2 – Live-Status", "color": 0x3A8A24 if server is None or server.get("on") else 0xC0392B,
+           "fields": fields, "footer": {"text": "Aktualisiert automatisch" + (" · " + site if site else "")}}
+    if desc:
+        emb["description"] = desc
+    if site:
+        emb["url"] = site
+    return emb
+
+
+def discord_update(embed):
+    """Postet das Panel einmal und bearbeitet danach dieselbe Nachricht (nur bei Änderungen)."""
+    url = os.environ["DISCORD_WEBHOOK"].rstrip("/")
+    try:
+        state = json.loads(STATE.read_text("utf-8"))
+    except (OSError, ValueError):
+        state = {}
+    h = hashlib.sha1(json.dumps(embed, sort_keys=True).encode()).hexdigest()
+    if state.get("hash") == h and state.get("id"):
+        print("Discord-Panel unverändert")
+        return
+    body = json.dumps({"embeds": [{**embed, "timestamp": datetime.now(timezone.utc).isoformat()}]}).encode()
+
+    def call(method, u):
+        req = urllib.request.Request(u, data=body, method=method,
+                                     headers={"Content-Type": "application/json", "User-Agent": "CA2-Stats/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.loads(r.read() or b"{}")
+
+    try:
+        if state.get("id"):
+            call("PATCH", f"{url}/messages/{state['id']}")
+        else:
+            state["id"] = call("POST", url + "?wait=true")["id"]
+    except urllib.error.HTTPError as e:
+        if e.code == 404 and state.get("id"):  # Nachricht wurde gelöscht -> neu senden
+            state["id"] = call("POST", url + "?wait=true")["id"]
+        else:
+            print("Discord-Fehler:", e.code, e.read()[:200])
+            return
+    state["hash"] = h
+    STATE.write_text(json.dumps(state), "utf-8")
+    print("Discord-Panel aktualisiert")
+
+
 def build():
     names = {}
     try:
@@ -404,6 +498,11 @@ def build():
         OUT.parent.mkdir(exist_ok=True)
         OUT.write_text(json.dumps({"updated": now, "server": server, "players": players},
                                   ensure_ascii=False), "utf-8")
+    if os.environ.get("DISCORD_WEBHOOK"):
+        try:
+            discord_update(discord_embed(players, server, now))
+        except Exception as e:  # Discord darf den Lauf nie scheitern lassen
+            print("Discord-Panel fehlgeschlagen:", e)
     print(len(players), "Spieler")
 
 
