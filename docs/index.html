@@ -124,7 +124,8 @@ const DEMO=[
 const AW=[
 ['⏱️ Zeit & Aktivität',[['⏱️','Dauerzocker','h','Std.'],['🕒','Längste Session','ls','Std.'],['👻','Phantom-Kandidat','tr','Std. wach'],['🧘','Unsterblichster','ts','Std. ohne Tod'],['🛏️','Schlafmütze','sl','Nächte']]],
 ['⚔️ Kampf & Schaden',[['💀','Todesmeister','d','Tode'],['⚔️','Monsterjäger','mk','Mob-Kills'],['💢','Hau-drauf','dd','♥ ausgeteilt'],['🛡️','Schadensschwamm','dt','♥ erlitten'],['🧸','Totem-Verbraucher','tt','Totems']]],
-['⛏️ Bauen & Abbauen',[['⛏️','Stein-Zerstörer','m','Blöcke'],['🧱','Baumeister','pl','Blöcke (geschätzt)']]],
+['⛏️ Bauen & Abbauen',[['⛏️','Stein-Zerstörer','m','Blöcke'],['🧱','Baumeister','pl','Blöcke (geschätzt)'],['🔌','Redstone-Ingenieur','rs','Teile verbaut']]],
+['✨ Erfahrung',[['🧪','Level-Farmer (geschätzt)','lg','Level'],['🔮','Level-Verbraucher (geschätzt)','lv','Level']]],
 ['🧭 Bewegung',[['🦘','Hüpfer vom Dienst','j','Sprünge'],['🏊','Wasserratte','sw','km'],['🪂','Elytra-Pilot','f','km Flug'],['🤫','Schleicher','sn','km',p=>p.sk?f1(p.sk)+' Std. geschlichen':''],['🕳️','Absturz-Profi','fl','km Fall']]],
 ['🏆 Fortschritt & Dorf',[['📜','Achievement-Jäger','ac','Fortschritte'],['🗣️','Villager-Flüsterer','v','Gespräche']]]];
 const AWF=AW.flatMap(c=>c[1]);
@@ -144,7 +145,7 @@ $('aw').innerHTML=awHtml();
 plist();goals(S);cu();showFacts()}
 let SV={on:true,count:2,max:20};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
-DEMO.forEach((p,i)=>{const[o,s]=DS[i];Object.assign(p,{dd:[9800,12400,5200,800,6300,2100][i],tt:[2,9,0,1,4,6][i],sn:[3.1,1.2,8.4,.6,5.5,.9][i],sk:[14,6,38,3,22,4][i],fl:[12,31,5,2,9,40][i],tr:[2,30,1.5,48,6,20][i],pl:[210000,95000,310000,18000,150000,42000][i],ac:[62,38,87,14,51,27][i],ls:[5.2,2.1,9.8,1.1,4.4,3][i]});p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
+DEMO.forEach((p,i)=>{const[o,s]=DS[i];Object.assign(p,{dd:[9800,12400,5200,800,6300,2100][i],tt:[2,9,0,1,4,6][i],sn:[3.1,1.2,8.4,.6,5.5,.9][i],sk:[14,6,38,3,22,4][i],fl:[12,31,5,2,9,40][i],tr:[2,30,1.5,48,6,20][i],pl:[210000,95000,310000,18000,150000,42000][i],ac:[62,38,87,14,51,27][i],ls:[5.2,2.1,9.8,1.1,4.4,3][i],lg:[310,150,520,40,260,90][i],lv:[240,120,480,25,200,60][i],rs:[420,30,2600,5,5400,10][i]});p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
 const ago=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return s<60?'wenigen Sek.':m<60?m+' Min.':h<48?h+' Std.'+(m%60?' '+m%60+' Min.':''):Math.floor(h/24)+' Tagen'};
 const PV={};
 function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dataset.v,from=PV[i]||0;PV[i]=v;if(from==v||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/900);el.textContent=f1(from+(v-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
@@ -184,7 +185,7 @@ function nextFacts(){fo+=5;const u=$('fx');u.style.opacity=0;setTimeout(()=>{sho
 function armFacts(){clearInterval(rt);rt=setInterval(nextFacts,40000)}
 $('nf').onclick=()=>{nextFacts();armFacts()};armFacts();
 const head=(n,z)=>`<span class="av" style="--h:${hue(n)};width:${z}px;height:${z}px;font-size:${z*.45}px"><span>${esc(n.charAt(0).toUpperCase())}</span><img src="https://mc-heads.net/avatar/${encodeURIComponent(n)}/${z*2}" alt="" loading="lazy" onerror="this.remove()"></span>`;
-const PS=[['h','Spielzeit','Std.'],['ls','Längste Session','Std.'],['d','Tode',''],['mk','Mob-Kills',''],['dd','Schaden ausgeteilt','♥'],['dt','Schaden erlitten','♥'],['m','Blöcke abgebaut',''],['pl','Blöcke platziert (geschätzt)',''],['j','Sprünge',''],['w','Gelaufen','km'],['sw','Geschwommen','km'],['f','Elytra-Flug','km'],['sn','Geschlichen','km'],['fl','Fallhöhe','km'],['tt','Totems verbraucht',''],['sl','Nächte geschlafen',''],['tr','Wach seit','Std.'],['ts','Ohne Tod seit','Std.'],['ac','Fortschritte',''],['v','Dorf-Gespräche','']];
+const PS=[['h','Spielzeit','Std.'],['ls','Längste Session','Std.'],['d','Tode',''],['mk','Mob-Kills',''],['dd','Schaden ausgeteilt','♥'],['dt','Schaden erlitten','♥'],['m','Blöcke abgebaut',''],['pl','Blöcke platziert (geschätzt)',''],['j','Sprünge',''],['w','Gelaufen','km'],['sw','Geschwommen','km'],['f','Elytra-Flug','km'],['sn','Geschlichen','km'],['fl','Fallhöhe','km'],['tt','Totems verbraucht',''],['sl','Nächte geschlafen',''],['tr','Wach seit','Std.'],['ts','Ohne Tod seit','Std.'],['ac','Fortschritte',''],['rs','Redstone-Teile verbaut',''],['lg','Level gefarmt (geschätzt)','Level'],['lv','Level verbraucht (geschätzt)','Level'],['v','Dorf-Gespräche','']];
 let tt;function toast(t){const e=$('ts');e.textContent=t;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),3200)}
 function openP(n){const p=P.find(x=>x.n==n);if(!p)return;const t=Date.now()/1000,d=$('pf');
 const st=p.on?'🟢 online seit '+ago(t-p.since):p.last?'⚫ zuletzt online vor '+ago(t-p.last):'';
