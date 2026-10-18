@@ -2,6 +2,7 @@
 """Baut docs/stats.json: Stats-Dateien (per SFTP, FTP oder aus ./raw) plus Online-Status per Server-Ping."""
 import calendar
 import ftplib
+import gzip
 import json
 import os
 import posixpath
@@ -12,9 +13,64 @@ import time
 from pathlib import Path
 
 RAW, OUT = Path("raw"), Path("docs/stats.json")
-NUM = ("h", "d", "m", "j", "sw", "w", "f", "mk", "ts", "dt", "sl", "v", "dd", "tt", "sn", "sk", "fl", "tr", "pl", "ac", "ls")
+NUM = ("h", "d", "m", "j", "sw", "w", "f", "mk", "ts", "dt", "sl", "v", "dd", "tt", "sn", "sk", "fl", "tr", "pl", "ac", "ls", "rs", "lg", "lv")
 # Items, die beim Benutzen KEIN Block werden (für die Schätzung "platzierte Blöcke")
 NOBLOCK = re.compile(r"(_pickaxe|_axe|_shovel|_hoe|_sword|_helmet|_chestplate|_leggings|_boots|_spawn_egg|_bucket|_potion|_boat|_minecart|_stew|_soup|_bottle|_dye|_template|_pattern|_horse_armor)$|^(bow|crossbow|trident|mace|shield|shears|flint_and_steel|fishing_rod|brush|spyglass|compass|clock|lead|name_tag|saddle|elytra|firework_rocket|ender_pearl|ender_eye|snowball|egg|experience_bottle|fire_charge|wind_charge|bone_meal|map|filled_map|book|writable_book|enchanted_book|paper|stick|totem_of_undying|golden_apple|enchanted_golden_apple|apple|bread|cookie|beef|porkchop|chicken|mutton|rabbit|cod|salmon|tropical_fish|pufferfish|rotten_flesh|spider_eye|golden_carrot|melon_slice|chorus_fruit|potion|arrow|spectral_arrow|tipped_arrow|bowl|bundle|goat_horn|cooked_.*|music_disc_.*)$")
+
+
+REDSTONE = ("redstone", "repeater", "comparator", "observer", "piston", "sticky_piston", "redstone_torch",
+            "redstone_lamp", "lever", "dispenser", "dropper", "hopper", "tripwire_hook", "target", "daylight_detector")
+
+
+def nbt_read(data):
+    """Minimaler NBT-Leser (gzip) – liest die Spielerdatei (.dat)."""
+    d, pos = gzip.decompress(data), [0]
+
+    def take(n):
+        x = d[pos[0]:pos[0] + n]
+        pos[0] += n
+        return x
+
+    def num(fmt, n):
+        return struct.unpack(">" + fmt, take(n))[0]
+
+    def string():
+        return take(num("H", 2)).decode("utf-8", "replace")
+
+    def payload(t):
+        if t in (1, 2, 3, 4, 5, 6):
+            f, n = {1: ("b", 1), 2: ("h", 2), 3: ("i", 4), 4: ("q", 8), 5: ("f", 4), 6: ("d", 8)}[t]
+            return num(f, n)
+        if t == 8:
+            return string()
+        if t in (7, 11, 12):
+            take(num("i", 4) * {7: 1, 11: 4, 12: 8}[t])
+            return None
+        if t == 9:
+            it, n = take(1)[0], num("i", 4)
+            return [payload(it) for _ in range(n)]
+        if t == 10:
+            out = {}
+            while True:
+                tt = take(1)[0]
+                if tt == 0:
+                    return out
+                k = string()
+                out[k] = payload(tt)
+        raise ValueError(t)
+
+    t = take(1)[0]
+    string()
+    return payload(t)
+
+
+def lvl(pts):
+    """Erfahrungspunkte -> Level (stetig, offizielle Formel)."""
+    if pts <= 352:
+        return (pts + 9) ** 0.5 - 3
+    if pts <= 1507:
+        return 8.1 + (0.4 * (pts - 195.975)) ** 0.5
+    return 18.0556 + ((2 / 9) * (pts - 752.986)) ** 0.5
 
 
 def fetch_sftp():
@@ -52,13 +108,13 @@ def list_date(p):
         return None
 
 
-def ftp_list(ftp):
+def ftp_list(ftp, ext=".json"):
     """Dateien per LIST lesen (manche Hoster kennen weder NLST noch MLSD). -> {name: zeit|None}"""
     lines, out = [], {}
     ftp.retrlines("LIST", lines.append)
     for ln in lines:
         parts = ln.split()
-        if parts and parts[-1].endswith(".json") and not ln.startswith("d"):
+        if parts and parts[-1].endswith(ext) and not ln.startswith("d"):
             out[parts[-1]] = list_date(parts[5:8]) if len(parts) >= 9 else None
     return out
 
@@ -135,6 +191,20 @@ def ftp_download(ftp):
                 ftp.retrbinary("RETR " + n, fh.write)
     except ftplib.all_errors:
         print("Fortschritte nicht gefunden (übersprungen)")
+    for sub in ("playerdata", "data"):  # Spielerdateien (.dat) mit Erfahrungswerten
+        try:
+            ftp.cwd(home)
+            ftp.cwd(posixpath.join(posixpath.dirname(stats), sub))
+            names = [n for n in ftp_list(ftp, ".dat") if re.fullmatch(r"[0-9a-f-]{32,36}\.dat", n)]
+            if not names:
+                continue
+            (RAW / "dat").mkdir(exist_ok=True)
+            for n in names:
+                with open(RAW / "dat" / n, "wb") as fh:
+                    ftp.retrbinary("RETR " + n, fh.write)
+            break
+        except ftplib.all_errors:
+            continue
     parts = stats.split("/")  # usercache.json liegt im Server-Hauptordner: von innen nach außen suchen
     for k in range(len(parts) - 1, -1, -1):
         buf = []
@@ -218,7 +288,7 @@ def build():
     except (OSError, ValueError):
         pass
 
-    players = []
+    players, xp = [], {}
     for f in sorted(RAW.glob("*-*.json")):
         try:
             st = json.loads(f.read_text("utf-8")).get("stats", {})
@@ -236,6 +306,11 @@ def build():
             adv = json.loads((RAW / "adv" / f.name).read_text("utf-8"))
             ac = sum(1 for k, v in adv.items() if isinstance(v, dict) and v.get("done") and "recipes/" not in k)
         except (OSError, ValueError):
+            pass
+        try:
+            nbt = nbt_read((RAW / "dat" / f.with_suffix(".dat").name).read_bytes())
+            xp[names.get(uid, "Spieler " + uid[:6])] = (nbt.get("XpLevel", 0) + nbt.get("XpP", 0.0), nbt.get("XpTotal", 0))
+        except (OSError, ValueError, EOFError, IndexError, KeyError, struct.error):
             pass
         players.append({
             "n": names.get(uid, "Spieler " + uid[:6]),
@@ -259,6 +334,7 @@ def build():
             "tr": round(g("time_since_rest") / 72000, 1),
             "pl": sum(v for k, v in used.items() if not NOBLOCK.search(k[10:])),
             "ac": ac,
+            "rs": sum(used.get("minecraft:" + k, 0) for k in REDSTONE),
             "last": int(f.stat().st_mtime) or None,  # None = unbekannt
         })
 
@@ -267,6 +343,23 @@ def build():
     except (OSError, ValueError):
         old = {}
     prev = {p["n"]: p for p in old.get("players", [])}
+
+    # Level gefarmt / verbraucht: Vergleich mit der letzten Messung (Näherung)
+    for p in players:
+        o = prev.get(p["n"], {})
+        if p["n"] in xp:
+            xl, xt = xp[p["n"]]
+            now_l = lvl(xt)
+            if "xt" in o and xt >= o["xt"]:
+                g = now_l - lvl(o["xt"])
+                sp = max(0.0, g - (xl - o["xl"]))
+            elif "xt" in o:  # Tod: Erfahrung wurde zurückgesetzt
+                g, sp = now_l, 0.0
+            else:  # erste Messung
+                g, sp = now_l, max(0.0, now_l - xl)
+            p.update(xt=xt, xl=round(xl, 2), lg=round(o.get("lg", 0) + g, 2), lv=round(o.get("lv", 0) + sp, 2))
+        else:
+            p.update({k: o[k] for k in ("xt", "xl", "lg", "lv") if k in o})
 
     # Online-Status (nur wenn MC_HOST gesetzt ist)
     now, server = int(time.time()), None
