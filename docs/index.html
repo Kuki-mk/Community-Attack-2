@@ -81,6 +81,26 @@ dialog{border:2px solid var(--bd);border-radius:14px;background:var(--card);colo
 #ts{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--card);border:2px solid var(--acc);border-radius:12px;padding:10px 18px;box-shadow:0 4px 0 var(--sh);opacity:0;pointer-events:none;transition:.3s;z-index:30;max-width:90vw;text-align:center}#ts.show{opacity:1;transform:translate(-50%,0)}
 footer a{color:inherit}
 :root.end{--acc:#c38bff;--acc2:#6dd94a;--bd:#4a2f6e}
+#sb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:14px;padding:12px 16px}#sb[hidden]{display:none}
+#sb .sd{display:flex;align-items:center;gap:8px;font-weight:600}#sb .mt{flex:1 1 220px;color:var(--mut);min-width:0;overflow-wrap:anywhere}
+.cards{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.tc{--rc:#8a8f85;--mx:50%;--my:50%;position:relative;overflow:hidden;cursor:pointer;padding:10px;border:3px solid var(--rc);border-radius:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 22%,var(--card)),var(--card));box-shadow:0 5px 0 var(--sh);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .15s}
+.tc.r1{--rc:#3b82f6}.tc.r2{--rc:#a855f7}.tc.r3{--rc:#f5b301;animation:gold 3s ease-in-out infinite}
+@keyframes gold{50%{box-shadow:0 5px 0 var(--sh),0 0 22px #f5b301aa}}
+.tc::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.45),transparent 45%),linear-gradient(115deg,transparent 25%,rgba(255,0,150,.16) 40%,rgba(0,200,255,.18) 55%,rgba(255,230,0,.16) 70%,transparent 85%)}
+.tc:hover::after,.tc.big::after{opacity:1}
+.tc .th{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}.tc .rn{color:var(--rc);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.tc .art{margin:8px 0;border-radius:8px;aspect-ratio:1;display:grid;place-items:center;background:repeating-conic-gradient(color-mix(in srgb,var(--rc) 26%,transparent) 0 25%,transparent 0 50%) 0 0/24px 24px,color-mix(in srgb,var(--rc) 12%,var(--card))}
+.tc .art .av{width:62%!important;height:auto!important;aspect-ratio:1;border-radius:10px}
+.tc .nm{font:400 12px/1.4 'Press Start 2P',ui-monospace,monospace;overflow-wrap:anywhere;text-align:center;margin-bottom:8px}
+.tc .sl{font-size:13px;display:grid;gap:2px}.tc .md{margin-top:8px;font-size:18px;text-align:center;min-height:22px}
+.tc.big{max-width:300px;margin:14px auto 16px;cursor:default}
+#mc{position:fixed;bottom:calc(6px + env(safe-area-inset-bottom,0px));left:20px;width:48px;height:36px;z-index:6;cursor:pointer;transition-property:left;transition-timing-function:linear;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25))}
+#mc.flip{transform:scaleX(-1)}#mc svg{width:100%;height:100%;display:block;transform-origin:50% 100%}
+#mc.walk svg{animation:hop .45s ease-in-out infinite}#mc.jump svg{animation:jump .6s ease-out}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1.1,.9)}50%{transform:translateY(-10px) scale(.95,1.08)}}
+@keyframes jump{0%{transform:scale(1.2,.8)}30%{transform:translateY(-34px) scale(.9,1.15)}60%{transform:scale(1.2,.8)}100%{transform:none}}
+#mb{position:fixed;z-index:7;max-width:min(260px,80vw);background:var(--card);border:2px solid var(--acc);border-radius:12px;padding:8px 12px;font-size:13px;box-shadow:0 3px 0 var(--sh);opacity:0;pointer-events:none;transition:opacity .25s}#mb.show{opacity:1}
 </style></head><body><main>
 <div class="top"><h1 aria-label="Community Attack 2 – Server-Statistiken"><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
 <g class='bc'><g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
@@ -105,13 +125,17 @@ footer a{color:inherit}
 <div class="card"><div class="lbl">⏱️ Server läuft seit<br>10.10.2026, 18:30 Uhr</div><div class="big" id="up"></div></div>
 <div class="card"><div class="lbl">🌌 Das End öffnet in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
 </div>
+<div class="card" id="sb" hidden></div>
 <div class="grid" id="sum"></div>
 <h2>Community-Ziele</h2><div class="grid" id="gl"></div>
 <h2>Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
+<h2>Sammelkarten <span class="lbl">Tippe auf eine Karte für das Profil</span></h2><div class="cards" id="tc"></div>
 <h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div id="aw"></div>
 <h2>Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
+<h2>Gästebuch</h2><div class="card" id="gb"></div>
 <footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.<br>Spielerköpfe von <a href="https://mc-heads.net">MCHeads</a></footer>
 </main>
+<div id="mc" role="img" aria-label="Maskottchen Glibbi"></div><div id="mb" role="status"></div>
 <dialog id="pf"></dialog><div id="ts" role="status"></div>
 <script>
 const DEMO=[
@@ -142,8 +166,8 @@ const S=k=>P.reduce((a,p)=>a+(p[k]||0),0);
 $('st').textContent=demo?'Demo-Daten – die ersten echten Statistiken werden geladen, sobald sie verfügbar sind.':P.length+' Spieler geladen.';
 $('sum').innerHTML=[['Spieler',P.length],['Spielzeit (Tage)',S('h')/24],['Tode',S('d')],['Blöcke abgebaut',S('m')],['Sprünge',S('j')]].map(([l,v])=>`<div class="card"><div class="lbl">${l}</div><div class="big" data-v="${v}">${f1(v)}</div></div>`).join('');
 $('aw').innerHTML=awHtml();
-plist();goals(S);cu();showFacts()}
-let SV={on:true,count:2,max:20};
+plist();goals(S);cu();banner();tcards();showFacts()}
+let SV={on:true,count:2,max:20,ver:'Paper 1.21',ms:38,motd:'Community Attack 2 – willkommen!'};
 const NOW=Math.floor(Date.now()/1000),DS=[[1,5400],[0,7200],[1,780],[0,172800],[0,10800],[0,518400]];
 DEMO.forEach((p,i)=>{const[o,s]=DS[i];Object.assign(p,{dd:[9800,12400,5200,800,6300,2100][i],tt:[2,9,0,1,4,6][i],sn:[3.1,1.2,8.4,.6,5.5,.9][i],sk:[14,6,38,3,22,4][i],fl:[12,31,5,2,9,40][i],tr:[2,30,1.5,48,6,20][i],pl:[210000,95000,310000,18000,150000,42000][i],ac:[62,38,87,14,51,27][i],ls:[5.2,2.1,9.8,1.1,4.4,3][i],lg:[310,150,520,40,260,90][i],lv:[240,120,480,25,200,60][i],rs:[420,30,2600,5,5400,10][i]});p.on=!!o;if(o)p.since=NOW-s;else p.last=NOW-s});
 const ago=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return s<60?'wenigen Sek.':m<60?m+' Min.':h<48?h+' Std.'+(m%60?' '+m%60+' Min.':''):Math.floor(h/24)+' Tagen'};
@@ -151,7 +175,7 @@ const PV={};
 function cu(){$('sum').querySelectorAll('.big').forEach((el,i)=>{const v=+el.dataset.v,from=PV[i]||0;PV[i]=v;if(from==v||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/900);el.textContent=f1(from+(v-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const c=document.createElement('div');c.id='ptc';for(let i=0;i<22;i++){const e=document.createElement('i'),z=4+Math.random()*7;e.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*30}s;background:var(${i%3?'--acc':'--acc2'})`;c.appendChild(e)}document.body.prepend(c)}
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08}):null;
-document.querySelectorAll('h2,.tm,#sum,#gl,#pl,#aw,#fx,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
+document.querySelectorAll('h2,.tm,#sum,#gl,#pl,#tc,#aw,#fx,#gb,footer').forEach(el=>{el.classList.add('rv');io?io.observe(el):el.classList.add('in')});
 let FO=null,fo=0;
 function facts(){const S=k=>P.reduce((a,p)=>a+(p[k]||0),0),W=S('w'),J=S('j'),SW=S('sw'),D=S('d'),H=S('h'),M=S('m'),K=S('mk'),F=S('f'),DT=S('dt'),SL=S('sl'),V=S('v'),N=P.length,b=t=>`<b>${t}</b>`,
 top=fn=>{const p=P.reduce((m,x)=>fn(x)>fn(m)?x:m,P[0]||{});return fn(p)>0?p:null},
@@ -191,7 +215,7 @@ function openP(n){const p=P.find(x=>x.n==n);if(!p)return;const t=Date.now()/1000
 const st=p.on?'🟢 online seit '+ago(t-p.since):p.last?'⚫ zuletzt online vor '+ago(t-p.last):'';
 const med=AWF.filter(a=>{const w=P.reduce((m,q)=>(q[a[2]]||0)>(m[a[2]]||0)?q:m,P[0]);return w.n==p.n&&p[a[2]]>0}).map(a=>`<span class="chip">${a[0]} ${a[1]}</span>`).join('');
 const rows=PS.map(([k,l,u])=>{const v=p[k]||0;if(!(v>0))return'';const r=P.filter(q=>(q[k]||0)>v).length+1;return`<div class="ps"><span class="lbl">${l}</span><b>${f1(v)}${u?' '+u:''}</b><span class="rk">${['🥇','🥈','🥉'][r-1]||'#'+r}</span></div>`}).join('');
-d.innerHTML=`<div class="pi"><div class="ph">${head(p.n,96)}<div><div class="pn">${esc(p.n)}</div><div class="lbl" style="margin-top:6px">${st}</div></div><button id="px" type="button">✕</button></div>${med?`<div class="chips">${med}</div>`:''}<div class="pg">${rows||'<p class="lbl">Noch keine Werte.</p>'}</div><p style="margin:14px 0 0"><button id="pk" type="button">🔗 Link kopieren</button></p></div>`;
+d.innerHTML=`<div class="pi"><div class="ph"><div class="lbl">${st}</div><button id="px" type="button">✕</button></div>${card(p,true)}${med?`<div class="chips">${med}</div>`:''}<div class="pg">${rows||'<p class="lbl">Noch keine Werte.</p>'}</div><p style="margin:14px 0 0"><button id="pk" type="button">🔗 Link kopieren</button></p></div>`;
 if(!d.open)d.showModal();try{history.replaceState(null,'','#spieler='+encodeURIComponent(n))}catch(e){}}
 $('pf').addEventListener('close',()=>{try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}});
 $('pf').addEventListener('click',e=>{if(e.target.id=='px'||e.target===e.currentTarget)e.currentTarget.close();if(e.target.id=='pk'){try{navigator.clipboard.writeText(location.href)}catch(x){}toast('🔗 Link kopiert')}});
@@ -205,6 +229,35 @@ for(let i=0;i<44;i++){const e=document.createElement('i'),a=Math.random()*6.28,d
 document.body.animate([{transform:'translate(0)'},{transform:'translate(-8px,4px)'},{transform:'translate(7px,-5px)'},{transform:'translate(-4px,3px)'},{transform:'translate(0)'}],{duration:420});toast('💥 Kaboom! Keine Sorge – deine Blöcke sind noch da.')}
 const KC=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 addEventListener('keydown',e=>{ki=(e.key==KC[ki]||e.key.toLowerCase()==KC[ki])?ki+1:(e.key==KC[0]?1:0);if(ki==KC.length){ki=0;root.classList.add('end');toast('🐉 Der Enderdrache erwacht …');setTimeout(()=>root.classList.remove('end'),12000)}});
+function banner(){const b=$('sb');if(!SV||!('on' in SV)){b.hidden=true;return}b.hidden=false;
+b.innerHTML=`<span class="sd"><i class="dot${SV.on?' on':''}"></i>${SV.on?'Server online':'Server offline'}</span>`+(SV.on?`<span class="chip">👥 ${SV.count}/${SV.max}</span>`:'')+(SV.ver?`<span class="chip">🧩 ${esc(SV.ver)}</span>`:'')+(SV.on&&SV.ms!=null?`<span class="chip">📶 ${SV.ms} ms</span>`:'')+(SV.motd?`<span class="mt">${esc(SV.motd)}</span>`:'')}
+const RN=['Gewöhnlich','Selten','Episch','Legendär'];
+let RR={};
+function rars(){const sc=q=>{let s=0;AWF.forEach(a=>{const k=a[2];if(!(q[k]>0))return;const r=P.filter(z=>(z[k]||0)>q[k]).length;s+=r==0?3:r==1?2:r==2?1:0});return s},S={};P.forEach(p=>S[p.n]=sc(p));
+const all=[...P].sort((a,b)=>S[b.n]-S[a.n]||(b.h||0)-(a.h||0));RR={};all.forEach((p,i)=>{const f=i/all.length;RR[p.n]=S[p.n]==0?0:f<.15?3:f<.4?2:f<.7?1:0})}
+function card(p,big){const r=RR[p.n]||0,idx=[...P].sort((a,b)=>(b.h||0)-(a.h||0)).findIndex(q=>q.n==p.n)+1;
+const rk=PS.map(([k,l,u])=>[k,l,u,(p[k]||0)>0?P.filter(q=>(q[k]||0)>p[k]).length:99]).filter(x=>x[3]<99).sort((a,b)=>a[3]-b[3]).slice(0,3);
+const med=AWF.filter(a=>{const w=P.reduce((m,q)=>(q[a[2]]||0)>(m[a[2]]||0)?q:m,P[0]);return w.n==p.n&&p[a[2]]>0}).slice(0,6).map(a=>a[0]).join('');
+return`<div class="tc r${r}${big?' big':''}" data-n="${esc(p.n)}" tabindex="0"><div class="th"><span>#${String(idx).padStart(2,'0')}/${String(P.length).padStart(2,'0')}</span><span class="rn">${RN[r]}</span></div><div class="art">${head(p.n,110)}</div><div class="nm">${esc(p.n)}</div><div class="sl">${rk.map(x=>`<span>${['🥇','🥈','🥉'][x[3]]||'#'+(x[3]+1)} ${x[1]}: <b>${f1(p[x[0]])}${x[2]?' '+x[2]:''}</b></span>`).join('')}</div><div class="md">${med||'&nbsp;'}</div></div>`}
+function tcards(){rars();$('tc').innerHTML=[...P].sort((a,b)=>(RR[b.n]||0)-(RR[a.n]||0)||(b.h||0)-(a.h||0)).map(p=>card(p)).join('')}
+$('tc').addEventListener('click',e=>{const c=e.target.closest('.tc');if(c)openP(c.dataset.n)});
+$('tc').addEventListener('keydown',e=>{const c=e.target.closest('.tc');if(c&&e.key=='Enter')openP(c.dataset.n)});
+document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.tc');if(!c||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.style.setProperty('--mx',x*100+'%');c.style.setProperty('--my',y*100+'%');c.style.setProperty('--rx',(.5-y)*14+'deg');c.style.setProperty('--ry',(x-.5)*14+'deg')});
+document.addEventListener('pointerout',e=>{const c=e.target.closest&&e.target.closest('.tc');if(c&&!c.contains(e.relatedTarget)){c.style.removeProperty('--rx');c.style.removeProperty('--ry')}});
+const MAP=['...gggggg...','..gGGGGGGg..','.gGLLGGGGGg.','.gGGGGGGGGg.','.gGwkGGwkGg.','.gGwkGGwkGg.','.gGGGkkGGGg.','gGGGGGGGGGGg','.gggggggggg.'],MC={g:'#3f8f2a',G:'#5cb338',L:'#9be07a',w:'#fff',k:'#1b1d1a'};
+const mc=$('mc'),mb=$('mb');let mx=20,bt;
+mc.innerHTML='<svg viewBox="0 0 12 9" shape-rendering="crispEdges">'+MAP.map((r,y)=>[...r].map((c,x)=>MC[c]?`<rect x="${x}" y="${y}" width="1" height="1" fill="${MC[c]}"/>`:'').join('')).join('')+'</svg>';
+function say(t){const r=mc.getBoundingClientRect();mb.textContent=t;mb.style.left=Math.max(8,Math.min(innerWidth-270,r.left-10))+'px';mb.style.bottom=(innerHeight-r.top+10)+'px';mb.classList.add('show');clearTimeout(bt);bt=setTimeout(()=>mb.classList.remove('show'),4500)}
+const QUIPS=['Blubb!','Ssst … probier mal den Konami-Code.','Fünfmal aufs Logo klicken … nur so ein Tipp.','Ich mag Gras. Und Hüpfen.','Schon die Hall of Fame gesehen?'];
+mc.addEventListener('click',()=>{mc.classList.add('jump');setTimeout(()=>mc.classList.remove('jump'),600);const pool=[...QUIPS,...facts().filter(Boolean).map(x=>'Wusstest du? '+x.replace(/<[^>]+>/g,''))];say(pool[Math.floor(Math.random()*pool.length)])});
+function roam(){const to=Math.max(10,Math.random()*(innerWidth-60)),dur=Math.abs(to-mx)/45;mc.classList.toggle('flip',to<mx);mc.style.transitionDuration=dur+'s';mc.classList.add('walk');mc.style.left=to+'px';mx=to;setTimeout(()=>mc.classList.remove('walk'),dur*1000);setTimeout(roam,dur*1000+2000+Math.random()*5000)}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setTimeout(roam,3000);
+// Gästebuch (giscus): vier Werte von giscus.app eintragen, siehe Anleitung
+const GISCUS={repo:'',repoId:'',category:'',categoryId:''};
+function gbInit(){const g=$('gb');if(!GISCUS.repoId||!GISCUS.categoryId){g.innerHTML='<p class="lbl" style="margin:0">Das Gästebuch wird gerade eingerichtet – bald kannst du hier einen Gruß hinterlassen.</p>';return}
+g.innerHTML='<p class="lbl" style="margin:0 0 12px">Zum Schreiben brauchst du ein GitHub-Konto. Beim Laden werden Daten von giscus.app und GitHub abgerufen.</p>';
+const load=()=>{const s=document.createElement('script');s.src='https://giscus.app/client.js';Object.entries({repo:GISCUS.repo,'repo-id':GISCUS.repoId,category:GISCUS.category,'category-id':GISCUS.categoryId,mapping:'specific',term:'Gästebuch',strict:'0','reactions-enabled':'1','emit-metadata':'0','input-position':'top',theme:root.dataset.theme=='dark'?'dark':'light',lang:'de',loading:'lazy'}).forEach(([k,v])=>s.setAttribute('data-'+k,v));s.crossOrigin='anonymous';s.async=true;g.appendChild(s)};
+'IntersectionObserver' in window?new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();load()}}).observe(g):load()}
 const hue=n=>[...n].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
 function plist(){const t=Date.now()/1000,known=P.some(p=>'on' in p),rk=p=>p.on?0:p.last?1:2;
 const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.last||0))||x.n.localeCompare(y.n)),on=a.filter(p=>p.on).length;
@@ -219,10 +272,10 @@ function dur(ms){const s=Math.floor(ms/1000),d=Math.floor(s/86400);return d+(d==
 function tick(){const n=Date.now();$('up').textContent=n<T0?'Startet bald':dur(n-T0);$('cd').textContent=n>=T1?'Das End ist offen! 🐉':dur(T1-n)}
 tick();setInterval(tick,1000);
 const root=document.documentElement;
-function setTheme(t){root.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
+function setTheme(t){root.dataset.theme=t;{const f=document.querySelector('iframe.giscus-frame');if(f)f.contentWindow.postMessage({giscus:{setConfig:{theme:t=='dark'?'dark':'light'}}},'https://giscus.app')}try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
 (()=>{let t=null;try{t=localStorage.getItem('theme')}catch(e){}setTheme(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})();
 $('tg').onclick=()=>setTheme(root.dataset.theme=='dark'?'light':'dark');
-render();hashOpen();
+render();hashOpen();gbInit();
 async function load(){try{const r=await fetch('stats.json?'+Date.now());if(!r.ok)return;const j=await r.json();if(!Array.isArray(j.players)||!j.players.length)return;P=j.players;SV=j.server||null;demo=false;render();if(j.updated)$('st').textContent+=' Stand: '+new Date(j.updated*1000).toLocaleString('de-DE');hashOpen()}catch(e){}}
 load();setInterval(load,60000);
 </script></body></html>
