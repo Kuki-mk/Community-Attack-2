@@ -101,8 +101,17 @@ footer a{color:inherit}
 @keyframes hop{0%,100%{transform:translateY(0) scale(1.1,.9)}50%{transform:translateY(-10px) scale(.95,1.08)}}
 @keyframes jump{0%{transform:scale(1.2,.8)}30%{transform:translateY(-34px) scale(.9,1.15)}60%{transform:scale(1.2,.8)}100%{transform:none}}
 #mb{position:fixed;z-index:7;max-width:min(260px,80vw);background:var(--card);border:2px solid var(--acc);border-radius:12px;padding:8px 12px;font-size:13px;box-shadow:0 3px 0 var(--sh);opacity:0;pointer-events:none;transition:opacity .25s}#mb.show{opacity:1}
+html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+h2[id]{scroll-margin-top:calc(70px + env(safe-area-inset-top,0px))}#top{scroll-margin-top:100px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
+#nv{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;display:flex;gap:6px;overflow-x:auto;margin:0 -16px 18px;padding:8px 16px;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:2px solid var(--bd);scrollbar-width:none}
+#nv::-webkit-scrollbar{display:none}
+#nv a{flex:none;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;border:2px solid transparent;transition:background .15s,border-color .15s}
+#nv a:hover{border-color:var(--bd)}#nv a.on{background:var(--acc);color:#111}
+#up2{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:8;width:44px;height:44px;padding:0;border-radius:50%;border:2px solid var(--bd);background:var(--card);color:var(--ink);font-size:20px;box-shadow:0 3px 0 var(--sh);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .2s,transform .2s}
+#up2.show{opacity:1;pointer-events:auto;transform:none}
 </style></head><body><main>
-<div class="top"><h1 aria-label="Community Attack 2 – Server-Statistiken"><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
+<div class="top" id="top"><h1 aria-label="Community Attack 2 – Server-Statistiken"><svg class='logo' viewBox='0 0 450 112' role='img' aria-label='Community Attack 2 Logo'>
 <g class='bc'><g stroke='#1b1d1a' stroke-width='3' stroke-linejoin='round'>
 <polygon points='55,14 100,37 55,60 10,37' fill='#5cb338'/>
 <polygon points='10,37 55,60 55,108 10,85' fill='#8a5a35'/>
@@ -121,21 +130,25 @@ footer a{color:inherit}
 <text x='138' y='92' font-size='38' style='fill:var(--acc)'>ATTACK <tspan class='t2' fill='#b36bff'>2</tspan></text></g>
 </svg></h1><button class="tg" id="tg" type="button" aria-label="Farbschema wechseln"></button></div>
 <p class="sub">Live-Statistiken unserer Community · <span id="st"></span></p>
+<nav id="nv" aria-label="Navigation">
+<a href="#top">🏠 Start</a><a href="#s-ziele">🎯 Ziele</a><a href="#s-spieler">👥 Spieler</a><a href="#s-karten">🃏 Karten</a><a href="#s-hof">🏆 Hall of Fame</a><a href="#s-fakten">🤓 Fakten</a><a href="#s-gb">💬 Gästebuch</a>
+</nav>
 <div class="grid tm">
 <div class="card"><div class="lbl">⏱️ Server läuft seit<br>10.10.2026, 18:30 Uhr</div><div class="big" id="up"></div></div>
 <div class="card"><div class="lbl">🌌 Das End öffnet in<br>21.10.2026, 18:00 Uhr</div><div class="big" id="cd"></div></div>
 </div>
 <div class="card" id="sb" hidden></div>
 <div class="grid" id="sum"></div>
-<h2>Community-Ziele</h2><div class="grid" id="gl"></div>
-<h2>Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
-<h2>Sammelkarten <span class="lbl">Tippe auf eine Karte für das Profil</span></h2><div class="cards" id="tc"></div>
-<h2>Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div id="aw"></div>
-<h2>Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
-<h2>Gästebuch</h2><div class="card" id="gb"></div>
+<h2 id="s-ziele">Community-Ziele</h2><div class="grid" id="gl"></div>
+<h2 id="s-spieler">Spielerliste <span class="lbl" id="pc"></span></h2><div class="card" id="pl"></div>
+<h2 id="s-karten">Sammelkarten <span class="lbl">Tippe auf eine Karte für das Profil</span></h2><div class="cards" id="tc"></div>
+<h2 id="s-hof">Hall of Fame <span class="lbl">Tippe auf eine Karte für die komplette Rangliste</span></h2><div id="aw"></div>
+<h2 id="s-fakten">Nutzlose Fakten <button class="tg" id="nf" type="button">🎲 Neue Fakten</button></h2><ul id="fx"></ul>
+<h2 id="s-gb">Gästebuch</h2><div class="card" id="gb"></div>
 <footer>Community Attack 2 · Die Statistiken aktualisieren sich automatisch.<br>Spielerköpfe von <a href="https://mc-heads.net">MCHeads</a></footer>
 </main>
 <div id="mc" role="img" aria-label="Maskottchen Glibbi"></div><div id="mb" role="status"></div>
+<button id="up2" type="button" aria-label="Nach oben">↑</button>
 <dialog id="pf"></dialog><div id="ts" role="status"></div>
 <script>
 const DEMO=[
@@ -258,6 +271,11 @@ function gbInit(){const g=$('gb');if(!GISCUS.repoId||!GISCUS.categoryId){g.inner
 g.innerHTML='<p class="lbl" style="margin:0 0 12px">Zum Schreiben brauchst du ein GitHub-Konto. Beim Laden werden Daten von giscus.app und GitHub abgerufen.</p>';
 const load=()=>{const s=document.createElement('script');s.src='https://giscus.app/client.js';Object.entries({repo:GISCUS.repo,'repo-id':GISCUS.repoId,category:GISCUS.category,'category-id':GISCUS.categoryId,mapping:'specific',term:'Gästebuch',strict:'0','reactions-enabled':'1','emit-metadata':'0','input-position':'top',theme:root.dataset.theme=='dark'?'dark':'light',lang:'de',loading:'lazy'}).forEach(([k,v])=>s.setAttribute('data-'+k,v));s.crossOrigin='anonymous';s.async=true;g.appendChild(s)};
 'IntersectionObserver' in window?new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();load()}}).observe(g):load()}
+const navL=[...$('nv').querySelectorAll('a')].map(a=>[a,document.getElementById(a.getAttribute('href').slice(1))]);let navCur=null;
+function spy(){$('up2').classList.toggle('show',scrollY>600);if(!navL.length)return;const y=innerHeight*.35;let cur=navL[0][0];for(const [a,el] of navL)if(el&&el.getBoundingClientRect().top<=y)cur=a;
+if(cur!==navCur){navCur=cur;navL.forEach(([a])=>a.classList.toggle('on',a===cur));cur.scrollIntoView({block:'nearest',inline:'center'})}}
+addEventListener('scroll',spy,{passive:true});addEventListener('resize',spy);
+$('up2').addEventListener('click',()=>scrollTo({top:0}));
 const hue=n=>[...n].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
 function plist(){const t=Date.now()/1000,known=P.some(p=>'on' in p),rk=p=>p.on?0:p.last?1:2;
 const a=[...P].sort((x,y)=>rk(x)-rk(y)||(x.on?x.since-y.since:(y.last||0)-(x.last||0))||x.n.localeCompare(y.n)),on=a.filter(p=>p.on).length;
@@ -275,7 +293,7 @@ const root=document.documentElement;
 function setTheme(t){root.dataset.theme=t;{const f=document.querySelector('iframe.giscus-frame');if(f)f.contentWindow.postMessage({giscus:{setConfig:{theme:t=='dark'?'dark':'light'}}},'https://giscus.app')}try{localStorage.setItem('theme',t)}catch(e){}$('tg').textContent=t=='dark'?'☀️ Hell':'🌙 Dunkel'}
 (()=>{let t=null;try{t=localStorage.getItem('theme')}catch(e){}setTheme(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})();
 $('tg').onclick=()=>setTheme(root.dataset.theme=='dark'?'light':'dark');
-render();hashOpen();gbInit();
+render();hashOpen();gbInit();spy();
 async function load(){try{const r=await fetch('stats.json?'+Date.now());if(!r.ok)return;const j=await r.json();if(!Array.isArray(j.players)||!j.players.length)return;P=j.players;SV=j.server||null;demo=false;render();if(j.updated)$('st').textContent+=' Stand: '+new Date(j.updated*1000).toLocaleString('de-DE');hashOpen()}catch(e){}}
 load();setInterval(load,60000);
 </script></body></html>
