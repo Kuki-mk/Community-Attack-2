@@ -266,7 +266,7 @@ mc.addEventListener('click',()=>{mc.classList.add('jump');setTimeout(()=>mc.clas
 function roam(){const to=Math.max(10,Math.random()*(innerWidth-60)),dur=Math.abs(to-mx)/45;mc.classList.toggle('flip',to<mx);mc.style.transitionDuration=dur+'s';mc.classList.add('walk');mc.style.left=to+'px';mx=to;setTimeout(()=>mc.classList.remove('walk'),dur*1000);setTimeout(roam,dur*1000+2000+Math.random()*5000)}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setTimeout(roam,3000);
 // Gästebuch (giscus): vier Werte von giscus.app eintragen, siehe Anleitung
-const GISCUS={repo:'',repoId:'',category:'',categoryId:''};
+const GISCUS={repo:'Kuki-mk/Community-Attack-2',repoId:'R_kgDOVMGa9g',category:'Gästebuch',categoryId:'DIC_kwDOVMGa9s4DI5Lm'};
 function gbInit(){const g=$('gb');if(!GISCUS.repoId||!GISCUS.categoryId){g.innerHTML='<p class="lbl" style="margin:0">Das Gästebuch wird gerade eingerichtet – bald kannst du hier einen Gruß hinterlassen.</p>';return}
 g.innerHTML='<p class="lbl" style="margin:0 0 12px">Zum Schreiben brauchst du ein GitHub-Konto. Beim Laden werden Daten von giscus.app und GitHub abgerufen.</p>';
 const load=()=>{const s=document.createElement('script');s.src='https://giscus.app/client.js';Object.entries({repo:GISCUS.repo,'repo-id':GISCUS.repoId,category:GISCUS.category,'category-id':GISCUS.categoryId,mapping:'specific',term:'Gästebuch',strict:'0','reactions-enabled':'1','emit-metadata':'0','input-position':'top',theme:root.dataset.theme=='dark'?'dark':'light',lang:'de',loading:'lazy'}).forEach(([k,v])=>s.setAttribute('data-'+k,v));s.crossOrigin='anonymous';s.async=true;g.appendChild(s)};
