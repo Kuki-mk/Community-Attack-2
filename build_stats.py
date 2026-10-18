@@ -264,6 +264,9 @@ def read_varint(s):
     raise ValueError("varint")
 
 
+PING_ERR = {}
+
+
 def motd_text(d):
     """Server-Beschreibung (String oder Text-Komponente) -> reiner Text."""
     if isinstance(d, str):
@@ -294,7 +297,8 @@ def ping(host, port):
             info = json.loads(buf)
             info["_ms"] = round((time.time() - t0) * 1000)
             return info
-    except (OSError, ValueError, IndexError):
+    except (OSError, ValueError, IndexError) as e:
+        PING_ERR["e"] = f"{type(e).__name__}: {e}"
         return None
 
 
@@ -472,8 +476,18 @@ def build():
     # Online-Status (nur wenn MC_HOST gesetzt ist)
     now, server = int(time.time()), None
     host = os.environ.get("MC_HOST")
+    if not host:
+        print("MC_HOST nicht gesetzt – Server-Status und Online-Anzeige werden übersprungen.")
     if host:
-        info = ping(host, int(os.environ.get("MC_PORT") or 25565))
+        port = int(os.environ.get("MC_PORT") or 25565)
+        info = ping(host, port)
+        if info:
+            print(f"Server-Ping OK: {info.get('players', {}).get('online', 0)}/{info.get('players', {}).get('max', 0)} Spieler,"
+                  f" {(info.get('version') or {}).get('name', '?')}, {info.get('_ms')} ms")
+        else:
+            print(f"Server-Ping FEHLGESCHLAGEN für {host}:{port} – Grund: {PING_ERR.get('e', '?')}")
+            if not os.environ.get("MC_PORT"):
+                print("Hinweis: MC_PORT ist nicht gesetzt (Standard 25565). Hoster nutzen oft einen eigenen Spielport.")
         pl = (info or {}).get("players", {})
         online = {x["name"] for x in pl.get("sample", [])}
         server = {"on": info is not None, "count": pl.get("online", 0), "max": pl.get("max", 0)}
