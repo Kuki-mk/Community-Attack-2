@@ -249,13 +249,15 @@ def fetch_ftp():
                 ftp_download(ftp)
                 ftp.close()
                 print("FTP-Verbindung:", cls.__name__)
-                return
+                return True
             except ftplib.all_errors as e:
                 print(cls.__name__, "fehlgeschlagen:", e)
         if attempt < 2:
             print(f"Neuer Versuch in {wait} Sekunden …")
             time.sleep(wait)
-    raise SystemExit("FTP-Abruf fehlgeschlagen – prüfe FTP_HOST, FTP_PORT, FTP_USER und FTP_PASS bei den Secrets (Port bei G-Portal: siehe \"Advanced Access Data\").")
+    print("::warning::FTP-Abruf fehlgeschlagen – Statistiken sind veraltet. Prüfe FTP_HOST, FTP_PORT, FTP_USER und FTP_PASS bei den Secrets "
+          "(G-Portal: siehe \"Advanced Access Data\").")
+    return False
 
 
 def varint(n):
@@ -417,7 +419,7 @@ def discord_update(embed):
     print("Discord-Panel aktualisiert")
 
 
-def build():
+def build(stale=False):
     names = {}
     try:
         for u in json.loads((RAW / "usercache.json").read_text("utf-8")):
@@ -480,6 +482,11 @@ def build():
     except (OSError, ValueError):
         old = {}
     prev = {p["n"]: p for p in old.get("players", [])}
+    if not players and old.get("players"):  # FTP nicht erreichbar: letzte bekannte Werte weiterverwenden
+        players = json.loads(json.dumps(old["players"]))
+        print(f"Verwende {len(players)} Spieler aus der letzten stats.json (Stats veraltet, Online-Status ist aktuell).")
+    elif not players and stale:
+        raise SystemExit("FTP-Abruf fehlgeschlagen und noch keine stats.json vorhanden.")
 
     # Level gefarmt / verbraucht: Vergleich mit der letzten Messung (Näherung)
     for p in players:
@@ -551,8 +558,9 @@ def build():
 
 
 if __name__ == "__main__":
+    ok = True
     if os.environ.get("FTP_HOST"):  # FTP hat Vorrang, übrig gebliebene SFTP-Secrets stören nicht
-        fetch_ftp()
+        ok = fetch_ftp()
     elif os.environ.get("SFTP_HOST"):
         fetch_sftp()
-    build()
+    build(stale=not ok)
