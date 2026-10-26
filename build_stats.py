@@ -235,20 +235,27 @@ def fetch_ftp():
     if miss:
         raise SystemExit("Fehlende Secrets: " + ", ".join(miss))
     host, port = os.environ["FTP_HOST"], int(os.environ.get("FTP_PORT") or 21)
-    for cls in (ftplib.FTP_TLS, ftplib.FTP):
-        try:
-            ftp = cls()
-            ftp.connect(host, port, timeout=30)
-            ftp.login(os.environ["FTP_USER"], os.environ["FTP_PASS"])
-            if cls is ftplib.FTP_TLS:
-                ftp.prot_p()
-            ftp_download(ftp)
-            ftp.close()
-            print("FTP-Verbindung:", cls.__name__)
-            return
-        except ftplib.all_errors as e:
-            print(cls.__name__, "fehlgeschlagen:", e)
-    raise SystemExit("FTP-Abruf fehlgeschlagen")
+    print(f"FTP-Ziel: {host}:{port}" + ("" if os.environ.get("FTP_PORT") else
+          "  (FTP_PORT ist nicht gesetzt, Standard 21 – G-Portal nutzt meist einen eigenen Port!)"))
+    wait = int(os.environ.get("FTP_RETRY_WAIT") or 10)
+    for attempt in range(3):  # kurze Aussetzer des Hosters abfangen
+        for cls in (ftplib.FTP_TLS, ftplib.FTP):
+            try:
+                ftp = cls()
+                ftp.connect(host, port, timeout=30)
+                ftp.login(os.environ["FTP_USER"], os.environ["FTP_PASS"])
+                if cls is ftplib.FTP_TLS:
+                    ftp.prot_p()
+                ftp_download(ftp)
+                ftp.close()
+                print("FTP-Verbindung:", cls.__name__)
+                return
+            except ftplib.all_errors as e:
+                print(cls.__name__, "fehlgeschlagen:", e)
+        if attempt < 2:
+            print(f"Neuer Versuch in {wait} Sekunden …")
+            time.sleep(wait)
+    raise SystemExit("FTP-Abruf fehlgeschlagen – prüfe FTP_HOST, FTP_PORT, FTP_USER und FTP_PASS bei den Secrets (Port bei G-Portal: siehe \"Advanced Access Data\").")
 
 
 def varint(n):
